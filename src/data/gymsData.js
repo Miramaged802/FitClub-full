@@ -14,6 +14,7 @@ export const gymsData = [
     city: "Cairo",
     rating: 4.8,
     reviewCount: 128,
+    distance: "2.5",
     hours: {
       monday: "6:00 AM - 11:00 PM",
       tuesday: "6:00 AM - 11:00 PM",
@@ -24,7 +25,6 @@ export const gymsData = [
       sunday: "8:00 AM - 10:00 PM",
     },
     amenities: ["Pool", "Sauna", "Weight Room", "Personal Training", "Spa", "Cardio Theater", "Free Parking", "Towel Service", "Locker Rooms", "Juice Bar"],
-    distance: "2.5",
     monthlyPrice: 1200,
     yearlyPrice: 12000,
     currency: "EGP",
@@ -69,6 +69,7 @@ export const gymsData = [
     city: "Cairo",
     rating: 4.6,
     reviewCount: 94,
+    distance: "3.2",
     hours: {
       monday: "6:00 AM - 10:00 PM",
       tuesday: "6:00 AM - 10:00 PM",
@@ -124,9 +125,9 @@ export const gymsData = [
     city: "Cairo",
     rating: 4.9,
     reviewCount: 210,
+    distance: "1.8",
     hours: "Open 24/7",
     amenities: ["Pool", "Sauna", "Spa", "Weight Room", "Classes", "Yoga Studio", "Massage", "Valet Parking", "Towel Service", "Rooftop Pool"],
-    distance: "1.8",
     monthlyPrice: 1500,
     yearlyPrice: 15000,
     currency: "EGP",
@@ -157,7 +158,6 @@ export const gymsData = [
       },
     ],
   },
-  // Add remaining gyms...
   {
     id: 4,
     name: "Smart Gym Alexandria",
@@ -172,6 +172,7 @@ export const gymsData = [
     city: "Alexandria",
     rating: 4.5,
     reviewCount: 87,
+    distance: "1.5",
     hours: {
       monday: "6:00 AM - 11:00 PM",
       tuesday: "6:00 AM - 11:00 PM",
@@ -182,7 +183,6 @@ export const gymsData = [
       sunday: "8:00 AM - 9:00 PM",
     },
     amenities: ["Classes", "Yoga Studio", "Weight Room", "Cardio", "Personal Training", "Locker Rooms", "Free Parking"],
-    distance: "1.5",
     monthlyPrice: 800,
     yearlyPrice: 8000,
     currency: "EGP",
@@ -221,6 +221,7 @@ export const gymsData = [
     city: "Giza",
     rating: 4.7,
     reviewCount: 152,
+    distance: "2.1",
     hours: {
       monday: "5:00 AM - 12:00 AM",
       tuesday: "5:00 AM - 12:00 AM",
@@ -231,7 +232,6 @@ export const gymsData = [
       sunday: "7:00 AM - 10:00 PM",
     },
     amenities: ["Weight Room", "CrossFit", "Personal Training", "Sauna", "Nutrition Counseling", "Sports Massage", "Free Parking"],
-    distance: "2.1",
     monthlyPrice: 1100,
     yearlyPrice: 11000,
     currency: "EGP",
@@ -270,6 +270,7 @@ export const gymsData = [
     city: "Cairo",
     rating: 4.4,
     reviewCount: 76,
+    distance: "4.2",
     hours: {
       monday: "6:00 AM - 10:00 PM",
       tuesday: "6:00 AM - 10:00 PM",
@@ -280,7 +281,6 @@ export const gymsData = [
       sunday: "8:00 AM - 8:00 PM",
     },
     amenities: ["Pool", "Water Classes", "Cardio", "Weight Room", "Locker Rooms", "Swimming Lessons", "Aqua Aerobics"],
-    distance: "4.2",
     monthlyPrice: 900,
     yearlyPrice: 9000,
     currency: "EGP",
@@ -319,9 +319,9 @@ export const gymsData = [
     city: "New Capital",
     rating: 4.9,
     reviewCount: 45,
+    distance: "25.0",
     hours: "Open 24/7",
     amenities: ["Pool", "Sauna", "Spa", "Weight Room", "Classes", "Personal Training", "Basketball Court", "Valet Parking", "Nutrition Bar"],
-    distance: "25.0",
     monthlyPrice: 1400,
     yearlyPrice: 14000,
     currency: "EGP",
@@ -360,6 +360,7 @@ export const gymsData = [
     city: "Hurghada",
     rating: 4.3,
     reviewCount: 62,
+    distance: "0.8",
     hours: {
       monday: "6:00 AM - 11:00 PM",
       tuesday: "6:00 AM - 11:00 PM",
@@ -370,7 +371,6 @@ export const gymsData = [
       sunday: "7:00 AM - 10:00 PM",
     },
     amenities: ["Outdoor Training", "Beach Access", "Weight Room", "Cardio", "Water Sports", "Yoga Studio", "Free Parking"],
-    distance: "0.8",
     monthlyPrice: 700,
     yearlyPrice: 7000,
     currency: "EGP",
@@ -409,6 +409,7 @@ export const gymsData = [
     city: "Mansoura",
     rating: 4.2,
     reviewCount: 38,
+    distance: "1.2",
     hours: {
       monday: "7:00 AM - 11:00 PM",
       tuesday: "7:00 AM - 11:00 PM",
@@ -419,7 +420,6 @@ export const gymsData = [
       sunday: "9:00 AM - 9:00 PM",
     },
     amenities: ["Weight Room", "Cardio", "Classes", "Personal Training", "Locker Rooms", "Student Discounts"],
-    distance: "1.2",
     monthlyPrice: 650,
     yearlyPrice: 6500,
     currency: "EGP",
@@ -458,6 +458,7 @@ export const gymsData = [
     city: "Sharm El Sheikh",
     rating: 4.6,
     reviewCount: 54,
+    distance: "2.3",
     hours: {
       monday: "6:00 AM - 10:00 PM",
       tuesday: "6:00 AM - 10:00 PM",
@@ -468,7 +469,6 @@ export const gymsData = [
       sunday: "7:00 AM - 9:00 PM",
     },
     amenities: ["Pool", "Spa", "Weight Room", "Yoga Studio", "Desert View", "Resort Access", "Towel Service", "Juice Bar"],
-    distance: "2.3",
     monthlyPrice: 850,
     yearlyPrice: 8500,
     currency: "EGP",
@@ -497,4 +497,4 @@ export const gymsData = [
 
 export const getGymById = (id) => {
   return gymsData.find(gym => gym.id === parseInt(id));
-}; 
+};

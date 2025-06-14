@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import GymCard from "../components/ui/GymCard.jsx";
 import { Loader } from "@googlemaps/js-api-loader";
 import { gyms as gymsApi } from "../lib/supabase";
-import { mockGymsData } from "../data/mockGymsData";
+import { gymsData } from "../data/gymsData.js";
 
 const Gyms = () => {
   const [filters, setFilters] = useState({
@@ -26,7 +26,7 @@ const Gyms = () => {
 
   const [showFilters, setShowFilters] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const [gymsData, setGymsData] = useState([]);
+  const [gymsDataState, setGymsDataState] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const mapRef = useRef(null);
@@ -69,7 +69,7 @@ const Gyms = () => {
     "Sharm El Sheikh",
   ];
 
-  // Fetch gyms data from Supabase or use mock data if table doesn't exist
+  // Fetch gyms data from Supabase or use local data if table doesn't exist
   useEffect(() => {
     const fetchGyms = async () => {
       setIsLoading(true);
@@ -85,9 +85,9 @@ const Gyms = () => {
             error.message.includes('relation "public.gyms" does not exist')
           ) {
             console.log(
-              "Gyms table does not exist in Supabase, using mock data instead"
+              "Gyms table does not exist in Supabase, using local data instead"
             );
-            setGymsData(mockGymsData);
+            setGymsDataState(gymsData);
             return;
           }
           throw new Error(error.message || "Failed to fetch gyms");
@@ -98,6 +98,7 @@ const Gyms = () => {
           const formattedGyms = data.map((gym) => ({
             id: gym.id,
             name: gym.name,
+            description: gym.description,
             address: gym.address,
             city: gym.city,
             location: `${gym.city}, Egypt`,
@@ -107,8 +108,9 @@ const Gyms = () => {
                 : gym.coordinates || { lat: 30.0444, lng: 31.2357 },
             rating: gym.rating || 4.5,
             reviewCount: gym.review_count || 120,
-            distance: gym.distance || "5",
+            distance: "5", // This would be calculated based on user location
             monthlyPrice: gym.monthly_price || 500,
+            yearlyPrice: gym.yearly_price || 5000,
             currency: gym.currency || "EGP",
             hours: (() => {
               if (!gym.hours) return "Open 24/7";
@@ -117,7 +119,7 @@ const Gyms = () => {
                   ? JSON.parse(gym.hours)
                   : gym.hours;
               } catch (e) {
-                return gym.hours; // Return the plain string if JSON parsing fails
+                return gym.hours;
               }
             })(),
             amenities:
@@ -128,24 +130,25 @@ const Gyms = () => {
               typeof gym.images === "string"
                 ? JSON.parse(gym.images)
                 : gym.images || [
-                    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z3ltfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60",
+                    "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
                   ],
-            description:
-              gym.description ||
-              "A modern fitness center with state-of-the-art equipment.",
+            phone: gym.phone,
+            email: gym.email,
+            website: gym.website,
+            instagram: gym.instagram,
           }));
 
-          setGymsData(formattedGyms);
+          setGymsDataState(formattedGyms);
         } else {
-          // If no gyms found in database, use default mock data
-          console.log("No gyms found in database, using mock data");
-          setGymsData(mockGymsData);
+          // If no gyms found in database, use local data
+          console.log("No gyms found in database, using local data");
+          setGymsDataState(gymsData);
         }
       } catch (err) {
         console.error("Error fetching gyms:", err);
         setError(err.message || "Failed to load gyms");
-        // Fallback to mock data on any error
-        setGymsData(mockGymsData);
+        // Fallback to local data on any error
+        setGymsDataState(gymsData);
       } finally {
         setIsLoading(false);
       }
@@ -155,7 +158,7 @@ const Gyms = () => {
   }, []);
 
   // Filter gyms based on search and filters
-  const filteredGyms = gymsData.filter((gym) => {
+  const filteredGyms = gymsDataState.filter((gym) => {
     // Search filter
     if (
       filters.search &&
@@ -175,8 +178,8 @@ const Gyms = () => {
       return false;
     }
 
-    // Distance filter
-    if (parseFloat(gym.distance) > filters.distance) {
+    // Distance filter (mock implementation)
+    if (parseFloat(gym.distance || "5") > filters.distance) {
       return false;
     }
 
@@ -310,8 +313,6 @@ const Gyms = () => {
       rating,
     });
   };
-
-  // This section was moved above the useEffect that uses filteredGyms
 
   // Update map markers when filters change
   useEffect(() => {
