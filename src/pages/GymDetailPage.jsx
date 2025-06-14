@@ -10,25 +10,116 @@ import {
   FiInstagram,
   FiArrowLeft,
   FiDollarSign,
+  FiCheck,
+  FiX,
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { getGymById } from "../data/gymsData.js";
+import { auth, userSubscriptions, subscriptionPlans } from "../lib/supabase";
 
 const GymDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
   const [gym, setGym] = useState(null);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [billingType, setBillingType] = useState('monthly');
+  const [plans, setPlans] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const foundGym = getGymById(id);
     if (foundGym) {
       setGym(foundGym);
     } else {
-      // If gym not found, navigate back to gyms page
       navigate("/gyms");
     }
+
+    // Get current user
+    const getCurrentUser = async () => {
+      const { user } = await auth.getUser();
+      setUser(user);
+    };
+    getCurrentUser();
+
+    // Fetch subscription plans
+    const fetchPlans = async () => {
+      const { data, error } = await subscriptionPlans.getAll();
+      if (data) {
+        setPlans(data);
+        setSelectedPlan(data.find(plan => plan.name === 'Premium') || data[0]);
+      }
+    };
+    fetchPlans();
   }, [id, navigate]);
+
+  const handleSubscribeClick = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setShowSubscriptionModal(true);
+  };
+
+  const handleSubscribe = async () => {
+    if (!user || !selectedPlan) return;
+
+    setIsLoading(true);
+    try {
+      // Generate membership ID and verification code
+      const membershipId = 'FM' + Date.now().toString().slice(-8) + Math.random().toString(36).substr(2, 4).toUpperCase();
+      const verificationCode = Math.random().toString(36).substr(2, 8).toUpperCase();
+      
+      // Calculate end date
+      const startDate = new Date();
+      const endDate = new Date();
+      if (billingType === 'monthly') {
+        endDate.setMonth(endDate.getMonth() + 1);
+      } else {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      }
+
+      // Create subscription
+      const subscriptionData = {
+        user_id: user.id,
+        plan_id: selectedPlan.id,
+        membership_id: membershipId,
+        status: 'active',
+        billing_type: billingType,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        verification_code: verificationCode,
+        qr_code_data: JSON.stringify({
+          membershipId,
+          planName: selectedPlan.name,
+          memberName: user.email, // Will be updated with actual name from profile
+          validUntil: endDate.toISOString(),
+          planType: billingType,
+          gymAccess: selectedPlan.gym_access_description,
+          verificationCode,
+          issueDate: startDate.toISOString(),
+          gymId: gym.id,
+          gymName: gym.name
+        })
+      };
+
+      const { data, error } = await userSubscriptions.create(subscriptionData);
+      
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Navigate to profile with success message
+      navigate('/profile?tab=subscription&success=true');
+    } catch (error) {
+      console.error('Subscription error:', error);
+      alert('Failed to create subscription. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!gym) {
     return (
@@ -149,6 +240,16 @@ const GymDetailPage = () => {
                         </div>
                       )}
                     </div>
+                    
+                    {/* Subscribe Button */}
+                    <div className="mt-6 text-center">
+                      <button 
+                        className="btn btn-primary btn-lg px-8 py-3"
+                        onClick={handleSubscribeClick}
+                      >
+                        Subscribe Now
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -162,6 +263,7 @@ const GymDetailPage = () => {
                       key={index}
                       className="flex items-center p-3 bg-light-background dark:bg-dark-background rounded-lg"
                     >
+                      <FiCheck className="text-success-500 mr-2" />
                       <span>{amenity}</span>
                     </div>
                   ))}
@@ -281,6 +383,125 @@ const GymDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Subscription Modal */}
+      {showSubscriptionModal && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowSubscriptionModal(false)}
+        >
+          <motion.div
+            className="bg-white dark:bg-dark-card rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Subscribe to {gym.name}</h2>
+                <button
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <FiX size={20} />
+                </button>
+              </div>
+
+              {/* Billing Toggle */}
+              <div className="flex justify-center mb-6">
+                <div className="bg-light-card dark:bg-dark-background rounded-full p-1 inline-flex">
+                  <button
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      billingType === "monthly"
+                        ? "bg-primary-600 text-white"
+                        : "text-light-textSecondary dark:text-dark-textSecondary"
+                    }`}
+                    onClick={() => setBillingType("monthly")}
+                  >
+                    Monthly
+                  </button>
+                  <button
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      billingType === "yearly"
+                        ? "bg-primary-600 text-white"
+                        : "text-light-textSecondary dark:text-dark-textSecondary"
+                    }`}
+                    onClick={() => setBillingType("yearly")}
+                  >
+                    Yearly
+                    <span className="ml-1 text-xs bg-success-500 text-white px-2 py-0.5 rounded-full">
+                      Save 20%
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Plan Selection */}
+              <div className="space-y-4 mb-6">
+                {plans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                      selectedPlan?.id === plan.id
+                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+                        : "border-light-border dark:border-dark-border hover:border-primary-300"
+                    }`}
+                    onClick={() => setSelectedPlan(plan)}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold">{plan.name}</h3>
+                      <div className="text-right">
+                        <span className="text-2xl font-bold">
+                          ${billingType === 'monthly' ? plan.price_monthly : plan.price_yearly}
+                        </span>
+                        <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
+                          /{billingType === 'monthly' ? 'month' : 'year'}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-light-textSecondary dark:text-dark-textSecondary mb-3">
+                      {plan.description}
+                    </p>
+                    <div className="text-sm text-primary-600 dark:text-primary-400">
+                      {plan.gym_access_description} • {JSON.parse(plan.features || '[]').length} features included
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Gym-specific benefits */}
+              <div className="bg-light-background dark:bg-dark-background p-4 rounded-lg mb-6">
+                <h4 className="font-semibold mb-3">Access to {gym.name} includes:</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {gym.amenities.slice(0, 6).map((amenity, index) => (
+                    <div key={index} className="flex items-center">
+                      <FiCheck className="text-success-500 mr-2" size={14} />
+                      <span>{amenity}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Subscribe Button */}
+              <button
+                className="w-full btn btn-primary btn-lg"
+                onClick={handleSubscribe}
+                disabled={isLoading || !selectedPlan}
+              >
+                {isLoading ? 'Processing...' : `Subscribe for $${billingType === 'monthly' ? selectedPlan?.price_monthly : selectedPlan?.price_yearly}/${billingType === 'monthly' ? 'month' : 'year'}`}
+              </button>
+
+              <p className="text-xs text-light-textSecondary dark:text-dark-textSecondary text-center mt-4">
+                You'll receive a digital membership with QR code for gym access. Cancel anytime.
+              </p>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };

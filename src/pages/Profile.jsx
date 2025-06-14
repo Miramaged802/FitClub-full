@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { 
   FiUser, FiCreditCard, FiClipboard, FiSettings, 
-  FiMapPin, FiEdit, FiCamera, FiCheckCircle, FiBarChart, FiSquare, FiLogOut 
+  FiMapPin, FiEdit, FiCamera, FiCheckCircle, FiBarChart, FiSquare, FiLogOut,
+  FiSave, FiX, FiPlus, FiTrash2
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +15,10 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [subscription, setSubscription] = useState(null);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
   
   const navigate = useNavigate();
   
@@ -36,65 +40,99 @@ const Profile = () => {
         const { data: profileData, error: profileError } = await users.getById(user.id);
         
         if (profileError) {
-          throw new Error(profileError.message || 'Failed to fetch profile data');
+          console.error('Profile error:', profileError);
+          // Create profile if it doesn't exist
+          const newProfile = {
+            user_id: user.id,
+            first_name: user.user_metadata?.first_name || '',
+            last_name: user.user_metadata?.last_name || '',
+            avatar_url: user.user_metadata?.avatar_url || 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+            phone: '',
+            address: '',
+            fitness_goals: ['Build Muscle', 'Improve Endurance']
+          };
+          
+          const { data: createdProfile, error: createError } = await users.create(newProfile);
+          if (createError) {
+            throw new Error(createError.message || 'Failed to create profile');
+          }
+          profileData = createdProfile[0];
         }
         
-        // Get user subscription
-        const { data: subscriptions, error: subscriptionError } = await userSubscriptions.getByUserId(user.id);
+        // Get user subscriptions
+        const { data: subscriptionsData, error: subscriptionError } = await userSubscriptions.getByUserId(user.id);
         
         if (subscriptionError) {
-          console.error('Error fetching subscription:', subscriptionError);
+          console.error('Subscription error:', subscriptionError);
         }
         
         // Combine auth user data with profile data
         const fullUserData = {
           ...user,
           ...profileData,
-          name: `${profileData?.first_name || ''} ${profileData?.last_name || ''}`.trim(),
-          // Default values for fields that might not exist yet
+          name: `${profileData?.first_name || ''} ${profileData?.last_name || ''}`.trim() || user.email,
           avatar: profileData?.avatar_url || 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-          address: profileData?.address || '',
-          phone: profileData?.phone || '',
-          preferredGym: profileData?.preferred_gym || '',
-          fitnessGoals: profileData?.fitness_goals || ['Build Muscle', 'Improve Endurance'],
           memberSince: new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
-          // Mock data for now - would be replaced with real data in a full implementation
+          // Mock data for demo - would be replaced with real data
           recentWorkouts: [
-            { date: '2023-09-20', name: 'Full Body Strength', duration: 65 },
-            { date: '2023-09-18', name: 'Cardio Session', duration: 45 },
-            { date: '2023-09-16', name: 'Upper Body Focus', duration: 50 },
-            { date: '2023-09-14', name: 'Leg Day', duration: 60 },
+            { date: '2024-01-20', name: 'Full Body Strength', duration: 65, gym: 'Gold\'s Gym New Cairo' },
+            { date: '2024-01-18', name: 'Cardio Session', duration: 45, gym: 'Fitness First Maadi' },
+            { date: '2024-01-16', name: 'Upper Body Focus', duration: 50, gym: 'California Gym Zamalek' },
+            { date: '2024-01-14', name: 'Leg Day', duration: 60, gym: 'Gold\'s Gym New Cairo' },
           ],
           favoriteGyms: [
             {
               id: 1,
-              name: 'FitZone Downtown',
+              name: 'Gold\'s Gym New Cairo',
               image: 'https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-              location: 'Downtown, New York',
+              location: 'New Cairo, Cairo',
             },
             {
               id: 2,
-              name: 'Elite Fitness Club',
+              name: 'California Gym Zamalek',
               image: 'https://images.pexels.com/photos/13106586/pexels-photo-13106586.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-              location: 'Upper East Side, New York',
+              location: 'Zamalek, Cairo',
             }
           ]
         };
         
         setUserData(fullUserData);
+        setEditForm({
+          first_name: profileData?.first_name || '',
+          last_name: profileData?.last_name || '',
+          phone: profileData?.phone || '',
+          address: profileData?.address || '',
+          fitness_goals: profileData?.fitness_goals || ['Build Muscle', 'Improve Endurance']
+        });
         
-        if (subscriptions && subscriptions.length > 0) {
-          const activeSubscription = subscriptions.find(sub => sub.status === 'active') || subscriptions[0];
-          setSubscription({
-            ...activeSubscription,
-            plan: activeSubscription.subscription_plans?.name || 'Standard',
-            nextBillingDate: new Date(activeSubscription.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-          });
+        if (subscriptionsData && subscriptionsData.length > 0) {
+          const formattedSubscriptions = subscriptionsData.map(sub => ({
+            ...sub,
+            plan_name: sub.subscription_plans?.name || 'Unknown Plan',
+            nextBillingDate: new Date(sub.end_date).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            }),
+            amount: sub.billing_type === 'monthly' ? 
+              sub.subscription_plans?.price_monthly : 
+              sub.subscription_plans?.price_yearly,
+            paymentHistory: [
+              {
+                date: sub.start_date,
+                amount: sub.billing_type === 'monthly' ? 
+                  sub.subscription_plans?.price_monthly : 
+                  sub.subscription_plans?.price_yearly,
+                status: 'completed',
+                method: 'Credit Card ending in 4242'
+              }
+            ]
+          }));
+          setSubscriptions(formattedSubscriptions);
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
         setError(err.message || 'Failed to load profile data');
-        // Redirect to login if not authenticated
         if (err.message === 'Not authenticated') {
           navigate('/login');
         }
@@ -106,6 +144,68 @@ const Profile = () => {
     fetchUserData();
   }, [navigate]);
   
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    if (isEditing) {
+      // Reset form to original data
+      setEditForm({
+        first_name: userData?.first_name || '',
+        last_name: userData?.last_name || '',
+        phone: userData?.phone || '',
+        address: userData?.address || '',
+        fitness_goals: userData?.fitness_goals || ['Build Muscle', 'Improve Endurance']
+      });
+    }
+  };
+  
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      const { data, error } = await users.update(userData.id, editForm);
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to update profile');
+      }
+      
+      // Update local state
+      setUserData({
+        ...userData,
+        ...editForm,
+        name: `${editForm.first_name} ${editForm.last_name}`.trim()
+      });
+      
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setError(err.message || 'Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleAddGoal = () => {
+    setEditForm({
+      ...editForm,
+      fitness_goals: [...editForm.fitness_goals, '']
+    });
+  };
+  
+  const handleRemoveGoal = (index) => {
+    setEditForm({
+      ...editForm,
+      fitness_goals: editForm.fitness_goals.filter((_, i) => i !== index)
+    });
+  };
+  
+  const handleGoalChange = (index, value) => {
+    const newGoals = [...editForm.fitness_goals];
+    newGoals[index] = value;
+    setEditForm({
+      ...editForm,
+      fitness_goals: newGoals
+    });
+  };
+  
   const tabs = [
     { id: 'account', label: 'Account', icon: <FiUser /> },
     { id: 'subscription', label: 'Subscription', icon: <FiCreditCard /> },
@@ -114,15 +214,18 @@ const Profile = () => {
     { id: 'settings', label: 'Settings', icon: <FiSettings /> },
   ];
   
+  // Get active subscription for QR code
+  const activeSubscription = subscriptions.find(sub => sub.status === 'active') || subscriptions[0];
+  
   // Generate subscription data for QR code
-  const subscriptionData = subscription ? {
-    membershipId: subscription.membership_id || "FM12345678",
-    planName: subscription.plan || "Standard",
+  const subscriptionData = activeSubscription ? {
+    membershipId: activeSubscription.membership_id || "FM12345678",
+    planName: activeSubscription.plan_name || "Standard",
     memberName: userData?.name || "",
-    validUntil: subscription.end_date || new Date().toISOString(),
-    planType: "monthly",
-    gymAccess: "500+ Gyms",
-    price: subscription.subscription_plans?.price_monthly || 49,
+    validUntil: activeSubscription.end_date || new Date().toISOString(),
+    planType: activeSubscription.billing_type || "monthly",
+    gymAccess: activeSubscription.subscription_plans?.gym_access_description || "500+ Gyms",
+    price: activeSubscription.amount || 49,
     currency: "USD"
   } : null;
   
@@ -192,7 +295,7 @@ const Profile = () => {
               <div className="ml-4">
                 <h1 className="text-2xl font-bold">{userData.name}</h1>
                 <p className="text-light-textSecondary dark:text-dark-textSecondary">
-                  {userData.plan} Member
+                  {activeSubscription?.plan_name || 'No Active Plan'} Member
                 </p>
               </div>
             </div>
@@ -220,7 +323,7 @@ const Profile = () => {
                 <div className="text-center mt-4">
                   <h1 className="text-2xl font-bold">{userData.name}</h1>
                   <p className="text-light-textSecondary dark:text-dark-textSecondary">
-                    {userData.plan} Member
+                    {activeSubscription?.plan_name || 'No Active Plan'} Member
                   </p>
                   <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary mt-1">
                     Member since {userData.memberSince}
@@ -264,45 +367,144 @@ const Profile = () => {
                 <div>
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold">Personal Information</h2>
-                    <button className="btn btn-outline flex items-center">
-                      <FiEdit className="mr-2" size={16} />
-                      <span>Edit</span>
+                    <button 
+                      className={`btn ${isEditing ? 'btn-outline' : 'btn-outline'} flex items-center`}
+                      onClick={handleEditToggle}
+                    >
+                      {isEditing ? <FiX className="mr-2" size={16} /> : <FiEdit className="mr-2" size={16} />}
+                      <span>{isEditing ? 'Cancel' : 'Edit'}</span>
                     </button>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Full Name</h3>
-                      <p className="font-medium">{userData.name}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Email Address</h3>
-                      <p className="font-medium">{userData.email}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Phone Number</h3>
-                      <p className="font-medium">{userData.phone}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Address</h3>
-                      <p className="font-medium">{userData.address}</p>
-                    </div>
-                  </div>
-                  
-                  <hr className="my-8 border-light-border dark:border-dark-border" />
-                  
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold mb-4">Fitness Preferences</h2>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Preferred Gym</h3>
-                        <p className="font-medium">{userData.preferredGym}</p>
+                  {isEditing ? (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">First Name</label>
+                          <input
+                            type="text"
+                            className="input w-full"
+                            value={editForm.first_name}
+                            onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Last Name</label>
+                          <input
+                            type="text"
+                            className="input w-full"
+                            value={editForm.last_name}
+                            onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Phone Number</label>
+                          <input
+                            type="tel"
+                            className="input w-full"
+                            value={editForm.phone}
+                            onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Email Address</label>
+                          <input
+                            type="email"
+                            className="input w-full"
+                            value={userData.email}
+                            disabled
+                          />
+                          <p className="text-xs text-light-textSecondary dark:text-dark-textSecondary mt-1">
+                            Email cannot be changed
+                          </p>
+                        </div>
                       </div>
+                      
                       <div>
-                        <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Fitness Goals</h3>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {userData.fitnessGoals.map((goal, index) => (
+                        <label className="block text-sm font-medium mb-2">Address</label>
+                        <textarea
+                          className="input w-full h-20 resize-none"
+                          value={editForm.address}
+                          onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Fitness Goals</label>
+                        <div className="space-y-2">
+                          {editForm.fitness_goals.map((goal, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                className="input flex-1"
+                                value={goal}
+                                onChange={(e) => handleGoalChange(index, e.target.value)}
+                                placeholder="Enter fitness goal"
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-outline p-2"
+                                onClick={() => handleRemoveGoal(index)}
+                              >
+                                <FiTrash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            className="btn btn-outline flex items-center"
+                            onClick={handleAddGoal}
+                          >
+                            <FiPlus className="mr-2" size={16} />
+                            Add Goal
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <button 
+                          className="btn btn-primary flex items-center"
+                          onClick={handleSaveProfile}
+                          disabled={isSaving}
+                        >
+                          <FiSave className="mr-2" size={16} />
+                          <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+                        </button>
+                        <button 
+                          className="btn btn-outline"
+                          onClick={handleEditToggle}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Full Name</h3>
+                          <p className="font-medium">{userData.name}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Email Address</h3>
+                          <p className="font-medium">{userData.email}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Phone Number</h3>
+                          <p className="font-medium">{userData.phone || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Address</h3>
+                          <p className="font-medium">{userData.address || 'Not provided'}</p>
+                        </div>
+                      </div>
+                      
+                      <hr className="my-8 border-light-border dark:border-dark-border" />
+                      
+                      <div className="mb-6">
+                        <h2 className="text-2xl font-bold mb-4">Fitness Goals</h2>
+                        <div className="flex flex-wrap gap-2">
+                          {userData.fitness_goals?.map((goal, index) => (
                             <span 
                               key={index}
                               className="bg-light-background dark:bg-dark-background px-3 py-1 rounded-full text-sm"
@@ -312,35 +514,35 @@ const Profile = () => {
                           ))}
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <hr className="my-8 border-light-border dark:border-dark-border" />
-                  
-                  <div>
-                    <h2 className="text-2xl font-bold mb-4">Favorite Gyms</h2>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {userData.favoriteGyms.map(gym => (
-                        <div key={gym.id} className="flex bg-light-background dark:bg-dark-background rounded-lg overflow-hidden">
-                          <div className="w-20 h-20 flex-shrink-0">
-                            <img 
-                              src={gym.image} 
-                              alt={gym.name} 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="p-3">
-                            <h3 className="font-medium">{gym.name}</h3>
-                            <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary flex items-center">
-                              <FiMapPin size={12} className="mr-1" />
-                              {gym.location}
-                            </p>
-                          </div>
+                      
+                      <hr className="my-8 border-light-border dark:border-dark-border" />
+                      
+                      <div>
+                        <h2 className="text-2xl font-bold mb-4">Favorite Gyms</h2>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {userData.favoriteGyms.map(gym => (
+                            <div key={gym.id} className="flex bg-light-background dark:bg-dark-background rounded-lg overflow-hidden">
+                              <div className="w-20 h-20 flex-shrink-0">
+                                <img 
+                                  src={gym.image} 
+                                  alt={gym.name} 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="p-3">
+                                <h3 className="font-medium">{gym.name}</h3>
+                                <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary flex items-center">
+                                  <FiMapPin size={12} className="mr-1" />
+                                  {gym.location}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
               
@@ -348,88 +550,129 @@ const Profile = () => {
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Subscription Details</h2>
                   
-                  <div className="bg-light-background dark:bg-dark-background p-6 rounded-lg mb-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between">
-                      <div>
-                        <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1 block">Current Plan</span>
-                        <h3 className="text-2xl font-bold text-primary-600 dark:text-primary-500">
-                          {userData.plan}
-                        </h3>
-                      </div>
-                      <div className="flex flex-col items-start md:items-end mt-4 md:mt-0">
-                        <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">
-                          Next billing on {userData.nextBillingDate}
-                        </span>
-                        <div className="flex space-x-3">
-                          <button 
-                            className="btn btn-primary mt-2 flex items-center"
-                            onClick={() => setShowQRCode(true)}
-                          >
-                            <FiSquare className="mr-2" size={16} />
-                            Show QR Code
-                          </button>
-                          <button className="btn btn-outline mt-2">
-                            Upgrade Plan
-                          </button>
-                          <button className="btn btn-outline mt-2">
-                            Cancel
-                          </button>
+                  {subscriptions.length > 0 ? (
+                    <div className="space-y-6">
+                      {subscriptions.map((subscription, index) => (
+                        <div key={subscription.id} className="bg-light-background dark:bg-dark-background p-6 rounded-lg">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                            <div>
+                              <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1 block">
+                                {subscription.status === 'active' ? 'Current Plan' : 'Previous Plan'}
+                              </span>
+                              <h3 className="text-2xl font-bold text-primary-600 dark:text-primary-500">
+                                {subscription.plan_name}
+                              </h3>
+                              <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
+                                {subscription.billing_type} billing • ${subscription.amount}/{subscription.billing_type === 'monthly' ? 'month' : 'year'}
+                              </p>
+                            </div>
+                            <div className="flex flex-col items-start md:items-end mt-4 md:mt-0">
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                subscription.status === 'active' 
+                                  ? 'bg-success-100 dark:bg-success-900/20 text-success-700 dark:text-success-400'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400'
+                              }`}>
+                                {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                              </span>
+                              {subscription.status === 'active' && (
+                                <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary mt-1">
+                                  Next billing: {subscription.nextBillingDate}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {subscription.status === 'active' && (
+                            <div className="flex flex-wrap gap-3 mb-4">
+                              <button 
+                                className="btn btn-primary flex items-center"
+                                onClick={() => setShowQRCode(true)}
+                              >
+                                <FiSquare className="mr-2" size={16} />
+                                Show QR Code
+                              </button>
+                              <button className="btn btn-outline">
+                                Upgrade Plan
+                              </button>
+                              <button className="btn btn-outline text-error-600 dark:text-error-400">
+                                Cancel Subscription
+                              </button>
+                            </div>
+                          )}
+                          
+                          {/* Payment History */}
+                          <div className="mt-6">
+                            <h4 className="font-semibold mb-3">Payment History</h4>
+                            <div className="space-y-2">
+                              {subscription.paymentHistory?.map((payment, paymentIndex) => (
+                                <div key={paymentIndex} className="flex items-center justify-between p-3 bg-white dark:bg-dark-card rounded-lg">
+                                  <div>
+                                    <p className="font-medium">
+                                      ${payment.amount} - {subscription.plan_name}
+                                    </p>
+                                    <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
+                                      {new Date(payment.date).toLocaleDateString()} • {payment.method}
+                                    </p>
+                                  </div>
+                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                    payment.status === 'completed'
+                                      ? 'bg-success-100 dark:bg-success-900/20 text-success-700 dark:text-success-400'
+                                      : 'bg-error-100 dark:bg-error-900/20 text-error-700 dark:text-error-400'
+                                  }`}>
+                                    {payment.status}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ))}
+                      
+                      {/* Plan Benefits */}
+                      {activeSubscription && (
+                        <div className="mt-8">
+                          <h3 className="text-lg font-semibold mb-4">Plan Benefits</h3>
+                          
+                          <ul className="space-y-3">
+                            <li className="flex items-start">
+                              <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
+                              <span>Access to {activeSubscription.subscription_plans?.gym_access_description || '500+ gyms'} nationwide</span>
+                            </li>
+                            <li className="flex items-start">
+                              <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
+                              <span>24/7 gym access at all locations</span>
+                            </li>
+                            <li className="flex items-start">
+                              <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
+                              <span>Premium workout plans and tracking tools</span>
+                            </li>
+                            <li className="flex items-start">
+                              <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
+                              <span>Advanced health tracking and metrics</span>
+                            </li>
+                            <li className="flex items-start">
+                              <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
+                              <span>Digital membership with QR code access</span>
+                            </li>
+                          </ul>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-4">Plan Benefits</h3>
-                    
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
-                        <span>Access to 500+ gyms nationwide</span>
-                      </li>
-                      <li className="flex items-start">
-                        <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
-                        <span>24/7 gym access at all locations</span>
-                      </li>
-                      <li className="flex items-start">
-                        <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
-                        <span>Premium workout plans and tracking tools</span>
-                      </li>
-                      <li className="flex items-start">
-                        <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
-                        <span>Advanced health tracking and metrics</span>
-                      </li>
-                      <li className="flex items-start">
-                        <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
-                        <span>Monthly personal trainer consultation</span>
-                      </li>
-                      <li className="flex items-start">
-                        <FiCheckCircle className="text-success-500 mt-1 mr-2 flex-shrink-0" />
-                        <span>Digital membership with QR code access</span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
-                    
-                    <div className="bg-light-background dark:bg-dark-background p-4 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded">
-                          <FiCreditCard size={20} />
-                        </div>
-                        <div className="ml-3">
-                          <p className="font-medium">Visa ending in 4242</p>
-                          <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
-                            Expires 05/25
-                          </p>
-                        </div>
-                      </div>
-                      <button className="text-primary-600 dark:text-primary-500 font-medium">
-                        Update
+                  ) : (
+                    <div className="text-center py-12">
+                      <div className="text-6xl mb-4">💳</div>
+                      <h3 className="text-xl font-semibold mb-2">No Active Subscription</h3>
+                      <p className="text-light-textSecondary dark:text-dark-textSecondary mb-6">
+                        You don't have any active subscriptions. Choose a plan to get started!
+                      </p>
+                      <button 
+                        className="btn btn-primary"
+                        onClick={() => navigate('/plans')}
+                      >
+                        View Plans
                       </button>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
               
@@ -443,6 +686,7 @@ const Profile = () => {
                         <tr>
                           <th className="p-3 rounded-tl-lg">Date</th>
                           <th className="p-3">Workout</th>
+                          <th className="p-3">Gym</th>
                           <th className="p-3">Duration</th>
                           <th className="p-3 rounded-tr-lg">Actions</th>
                         </tr>
@@ -458,6 +702,9 @@ const Profile = () => {
                               })}
                             </td>
                             <td className="p-3 font-medium">{workout.name}</td>
+                            <td className="p-3 text-sm text-light-textSecondary dark:text-dark-textSecondary">
+                              {workout.gym}
+                            </td>
                             <td className="p-3">{workout.duration} min</td>
                             <td className="p-3">
                               <button className="text-primary-600 dark:text-primary-500 font-medium">
@@ -513,31 +760,20 @@ const Profile = () => {
                     <h3 className="text-lg font-semibold mb-4">Goal Progress</h3>
                     
                     <div className="space-y-6">
-                      <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="font-medium">Build Muscle</span>
-                          <span>60%</span>
+                      {userData.fitness_goals?.map((goal, index) => (
+                        <div key={index}>
+                          <div className="flex justify-between mb-2">
+                            <span className="font-medium">{goal}</span>
+                            <span>{60 + index * 15}%</span>
+                          </div>
+                          <div className="w-full bg-light-background dark:bg-dark-background rounded-full h-2.5">
+                            <div 
+                              className="bg-primary-600 h-2.5 rounded-full" 
+                              style={{ width: `${60 + index * 15}%` }} 
+                            ></div>
+                          </div>
                         </div>
-                        <div className="w-full bg-light-background dark:bg-dark-background rounded-full h-2.5">
-                          <div 
-                            className="bg-primary-600 h-2.5 rounded-full" 
-                            style={{ width: '60%' }} 
-                          ></div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between mb-2">
-                          <span className="font-medium">Improve Endurance</span>
-                          <span>75%</span>
-                        </div>
-                        <div className="w-full bg-light-background dark:bg-dark-background rounded-full h-2.5">
-                          <div 
-                            className="bg-accent-600 h-2.5 rounded-full" 
-                            style={{ width: '75%' }} 
-                          ></div>
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                   
@@ -552,7 +788,7 @@ const Profile = () => {
                         <div>
                           <h4 className="font-medium">10 Workouts Completed</h4>
                           <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
-                            September 18, 2023
+                            January 18, 2024
                           </p>
                         </div>
                       </div>
@@ -564,7 +800,7 @@ const Profile = () => {
                         <div>
                           <h4 className="font-medium">First Personal Training Session</h4>
                           <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
-                            September 12, 2023
+                            January 12, 2024
                           </p>
                         </div>
                       </div>
@@ -654,7 +890,7 @@ const Profile = () => {
       </div>
 
       {/* QR Code Modal */}
-      {showQRCode && (
+      {showQRCode && subscriptionData && (
         <SubscriptionQRCode
           subscriptionData={subscriptionData}
           onClose={() => setShowQRCode(false)}

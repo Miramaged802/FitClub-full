@@ -82,7 +82,7 @@ export const auth = {
   },
 };
 
-// User functions
+// User functions (profiles table)
 export const users = {
   // Get all users
   getAll: async () => {
@@ -135,7 +135,8 @@ export const subscriptionPlans = {
   getAll: async () => {
     const { data, error } = await supabase
       .from("subscription_plans")
-      .select("*");
+      .select("*")
+      .eq("is_active", true);
     return { data, error };
   },
 
@@ -184,7 +185,10 @@ export const userSubscriptions = {
   getAll: async () => {
     const { data, error } = await supabase
       .from("user_subscriptions")
-      .select("*");
+      .select(`
+        *,
+        subscription_plans (*)
+      `);
     return { data, error };
   },
 
@@ -192,7 +196,10 @@ export const userSubscriptions = {
   getById: async (id) => {
     const { data, error } = await supabase
       .from("user_subscriptions")
-      .select("*")
+      .select(`
+        *,
+        subscription_plans (*)
+      `)
       .eq("id", id)
       .single();
     return { data, error };
@@ -202,8 +209,12 @@ export const userSubscriptions = {
   getByUserId: async (userId) => {
     const { data, error } = await supabase
       .from("user_subscriptions")
-      .select("*, subscription_plans(*)")
-      .eq("user_id", userId);
+      .select(`
+        *,
+        subscription_plans (*)
+      `)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
     return { data, error };
   },
 
@@ -212,7 +223,10 @@ export const userSubscriptions = {
     const { data, error } = await supabase
       .from("user_subscriptions")
       .insert([subscriptionData])
-      .select();
+      .select(`
+        *,
+        subscription_plans (*)
+      `);
     return { data, error };
   },
 
@@ -222,7 +236,10 @@ export const userSubscriptions = {
       .from("user_subscriptions")
       .update(subscriptionData)
       .eq("id", id)
-      .select();
+      .select(`
+        *,
+        subscription_plans (*)
+      `);
     return { data, error };
   },
 
@@ -240,7 +257,10 @@ export const userSubscriptions = {
 export const gyms = {
   // Get all gyms
   getAll: async () => {
-    const { data, error } = await supabase.from("gyms").select("*");
+    const { data, error } = await supabase
+      .from("gyms")
+      .select("*")
+      .eq("is_active", true);
     return { data, error };
   },
 
@@ -276,6 +296,81 @@ export const gyms = {
   // Delete a gym
   delete: async (id) => {
     const { error } = await supabase.from("gyms").delete().eq("id", id);
+    return { error };
+  },
+};
+
+// Gym access logs functions
+export const gymAccessLogs = {
+  // Get all access logs
+  getAll: async () => {
+    const { data, error } = await supabase
+      .from("gym_access_logs")
+      .select(`
+        *,
+        gyms (*),
+        user_subscriptions (*)
+      `);
+    return { data, error };
+  },
+
+  // Get access logs for a specific user
+  getByUserId: async (userId) => {
+    const { data, error } = await supabase
+      .from("gym_access_logs")
+      .select(`
+        *,
+        gyms (*),
+        user_subscriptions (*)
+      `)
+      .eq("user_id", userId)
+      .order("scanned_at", { ascending: false });
+    return { data, error };
+  },
+
+  // Get access logs for a specific gym
+  getByGymId: async (gymId) => {
+    const { data, error } = await supabase
+      .from("gym_access_logs")
+      .select(`
+        *,
+        user_subscriptions (*),
+        profiles (*)
+      `)
+      .eq("gym_id", gymId)
+      .order("scanned_at", { ascending: false });
+    return { data, error };
+  },
+
+  // Create an access log
+  create: async (logData) => {
+    const { data, error } = await supabase
+      .from("gym_access_logs")
+      .insert([logData])
+      .select(`
+        *,
+        gyms (*),
+        user_subscriptions (*)
+      `);
+    return { data, error };
+  },
+
+  // Update an access log
+  update: async (id, logData) => {
+    const { data, error } = await supabase
+      .from("gym_access_logs")
+      .update(logData)
+      .eq("id", id)
+      .select();
+    return { data, error };
+  },
+
+  // Delete an access log
+  delete: async (id) => {
+    const { error } = await supabase
+      .from("gym_access_logs")
+      .delete()
+      .eq("id", id);
     return { error };
   },
 };
