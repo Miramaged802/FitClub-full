@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   FiUser, FiCreditCard, FiClipboard, FiSettings, 
   FiMapPin, FiEdit, FiCamera, FiCheckCircle, FiBarChart, FiSquare, FiLogOut,
-  FiSave, FiX, FiPlus, FiTrash2
+  FiSave, FiX, FiPlus, FiTrash2, FiUpload
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -14,11 +14,13 @@ const Profile = () => {
   const [showQRCode, setShowQRCode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [userData, setUserData] = useState(null);
   const [subscriptions, setSubscriptions] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   
   const navigate = useNavigate();
   
@@ -37,10 +39,10 @@ const Profile = () => {
         }
         
         // Get user profile data
-        const { data: profileData, error: profileError } = await users.getById(user.id);
+        let profileData;
+        const { data: existingProfile, error: profileError } = await users.getById(user.id);
         
-        if (profileError) {
-          console.error('Profile error:', profileError);
+        if (profileError && profileError.message.includes('No rows returned')) {
           // Create profile if it doesn't exist
           const newProfile = {
             user_id: user.id,
@@ -57,6 +59,10 @@ const Profile = () => {
             throw new Error(createError.message || 'Failed to create profile');
           }
           profileData = createdProfile[0];
+        } else if (profileError) {
+          throw new Error(profileError.message || 'Failed to fetch profile data');
+        } else {
+          profileData = existingProfile;
         }
         
         // Get user subscriptions
@@ -102,7 +108,9 @@ const Profile = () => {
           last_name: profileData?.last_name || '',
           phone: profileData?.phone || '',
           address: profileData?.address || '',
-          fitness_goals: profileData?.fitness_goals || ['Build Muscle', 'Improve Endurance']
+          fitness_goals: Array.isArray(profileData?.fitness_goals) ? 
+            profileData.fitness_goals : 
+            (profileData?.fitness_goals ? [profileData.fitness_goals] : ['Build Muscle', 'Improve Endurance'])
         });
         
         if (subscriptionsData && subscriptionsData.length > 0) {
@@ -146,6 +154,9 @@ const Profile = () => {
   
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
+    setError(null);
+    setSuccessMessage(null);
+    
     if (isEditing) {
       // Reset form to original data
       setEditForm({
@@ -153,15 +164,34 @@ const Profile = () => {
         last_name: userData?.last_name || '',
         phone: userData?.phone || '',
         address: userData?.address || '',
-        fitness_goals: userData?.fitness_goals || ['Build Muscle', 'Improve Endurance']
+        fitness_goals: Array.isArray(userData?.fitness_goals) ? 
+          userData.fitness_goals : 
+          (userData?.fitness_goals ? [userData.fitness_goals] : ['Build Muscle', 'Improve Endurance'])
       });
     }
   };
   
   const handleSaveProfile = async () => {
     setIsSaving(true);
+    setError(null);
+    setSuccessMessage(null);
+    
     try {
-      const { data, error } = await users.update(userData.id, editForm);
+      // Validate required fields
+      if (!editForm.first_name.trim()) {
+        throw new Error('First name is required');
+      }
+      
+      // Filter out empty fitness goals
+      const cleanedGoals = editForm.fitness_goals.filter(goal => goal.trim() !== '');
+      
+      const updateData = {
+        ...editForm,
+        fitness_goals: cleanedGoals,
+        updated_at: new Date().toISOString()
+      };
+      
+      const { data, error } = await users.update(userData.user_id, updateData);
       
       if (error) {
         throw new Error(error.message || 'Failed to update profile');
@@ -170,16 +200,76 @@ const Profile = () => {
       // Update local state
       setUserData({
         ...userData,
-        ...editForm,
+        ...updateData,
         name: `${editForm.first_name} ${editForm.last_name}`.trim()
       });
       
       setIsEditing(false);
+      setSuccessMessage('Profile updated successfully!');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000);
+      
     } catch (err) {
       console.error('Error updating profile:', err);
       setError(err.message || 'Failed to update profile');
     } finally {
       setIsSaving(false);
+    }
+  };
+  
+  const handleAvatarUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size must be less than 5MB');
+      return;
+    }
+    
+    setIsUploadingAvatar(true);
+    setError(null);
+    
+    try {
+      // In a real implementation, you would upload to Supabase Storage
+      // For now, we'll simulate the upload and use a placeholder
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Generate a mock URL (in real app, this would be the uploaded file URL)
+      const mockAvatarUrl = `https://images.pexels.com/photos/${Math.floor(Math.random() * 1000000)}/pexels-photo.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&dpr=2`;
+      
+      // Update profile with new avatar URL
+      const { error } = await users.update(userData.user_id, {
+        avatar_url: mockAvatarUrl,
+        updated_at: new Date().toISOString()
+      });
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to update avatar');
+      }
+      
+      // Update local state
+      setUserData({
+        ...userData,
+        avatar: mockAvatarUrl,
+        avatar_url: mockAvatarUrl
+      });
+      
+      setSuccessMessage('Avatar updated successfully!');
+      setTimeout(() => setSuccessMessage(null), 3000);
+      
+    } catch (err) {
+      console.error('Error uploading avatar:', err);
+      setError(err.message || 'Failed to upload avatar');
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
   
@@ -252,7 +342,7 @@ const Profile = () => {
   }
   
   // Show error state
-  if (error) {
+  if (error && !userData) {
     return (
       <div className="min-h-screen py-16 flex items-center justify-center">
         <div className="card p-8 max-w-md mx-auto text-center">
@@ -276,6 +366,29 @@ const Profile = () => {
   return (
     <div className="min-h-screen py-16">
       <div className="container-custom">
+        {/* Success/Error Messages */}
+        {(successMessage || error) && (
+          <motion.div
+            className={`mb-6 p-4 rounded-lg ${
+              successMessage 
+                ? 'bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 text-success-700 dark:text-success-400'
+                : 'bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 text-error-700 dark:text-error-400'
+            }`}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <div className="flex items-center">
+              {successMessage ? (
+                <FiCheckCircle className="mr-2" />
+              ) : (
+                <FiX className="mr-2" />
+              )}
+              <span>{successMessage || error}</span>
+            </div>
+          </motion.div>
+        )}
+        
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Profile Header - Mobile Only */}
           <div className="lg:hidden card mb-6 p-6">
@@ -288,9 +401,23 @@ const Profile = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <button className="absolute bottom-0 right-0 bg-primary-600 text-white p-1.5 rounded-full">
-                  <FiCamera size={14} />
-                </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                  id="avatar-upload-mobile"
+                />
+                <label
+                  htmlFor="avatar-upload-mobile"
+                  className="absolute bottom-0 right-0 bg-primary-600 text-white p-1.5 rounded-full cursor-pointer hover:bg-primary-700 transition-colors"
+                >
+                  {isUploadingAvatar ? (
+                    <div className="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full"></div>
+                  ) : (
+                    <FiCamera size={14} />
+                  )}
+                </label>
               </div>
               <div className="ml-4">
                 <h1 className="text-2xl font-bold">{userData.name}</h1>
@@ -315,9 +442,23 @@ const Profile = () => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <button className="absolute bottom-0 right-0 bg-primary-600 text-white p-1.5 rounded-full">
-                      <FiCamera size={14} />
-                    </button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      id="avatar-upload-desktop"
+                    />
+                    <label
+                      htmlFor="avatar-upload-desktop"
+                      className="absolute bottom-0 right-0 bg-primary-600 text-white p-1.5 rounded-full cursor-pointer hover:bg-primary-700 transition-colors"
+                    >
+                      {isUploadingAvatar ? (
+                        <div className="animate-spin w-3 h-3 border border-white border-t-transparent rounded-full"></div>
+                      ) : (
+                        <FiCamera size={14} />
+                      )}
+                    </label>
                   </div>
                 </div>
                 <div className="text-center mt-4">
@@ -370,6 +511,7 @@ const Profile = () => {
                     <button 
                       className={`btn ${isEditing ? 'btn-outline' : 'btn-outline'} flex items-center`}
                       onClick={handleEditToggle}
+                      disabled={isSaving}
                     >
                       {isEditing ? <FiX className="mr-2" size={16} /> : <FiEdit className="mr-2" size={16} />}
                       <span>{isEditing ? 'Cancel' : 'Edit'}</span>
@@ -380,12 +522,15 @@ const Profile = () => {
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-sm font-medium mb-2">First Name</label>
+                          <label className="block text-sm font-medium mb-2">
+                            First Name *
+                          </label>
                           <input
                             type="text"
                             className="input w-full"
                             value={editForm.first_name}
                             onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
+                            placeholder="Enter your first name"
                           />
                         </div>
                         <div>
@@ -395,6 +540,7 @@ const Profile = () => {
                             className="input w-full"
                             value={editForm.last_name}
                             onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
+                            placeholder="Enter your last name"
                           />
                         </div>
                         <div>
@@ -404,6 +550,7 @@ const Profile = () => {
                             className="input w-full"
                             value={editForm.phone}
                             onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                            placeholder="Enter your phone number"
                           />
                         </div>
                         <div>
@@ -426,6 +573,7 @@ const Profile = () => {
                           className="input w-full h-20 resize-none"
                           value={editForm.address}
                           onChange={(e) => setEditForm({...editForm, address: e.target.value})}
+                          placeholder="Enter your address"
                         />
                       </div>
                       
@@ -443,7 +591,7 @@ const Profile = () => {
                               />
                               <button
                                 type="button"
-                                className="btn btn-outline p-2"
+                                className="btn btn-outline p-2 text-error-600 dark:text-error-400 hover:bg-error-50 dark:hover:bg-error-900/20"
                                 onClick={() => handleRemoveGoal(index)}
                               >
                                 <FiTrash2 size={16} />
@@ -473,6 +621,7 @@ const Profile = () => {
                         <button 
                           className="btn btn-outline"
                           onClick={handleEditToggle}
+                          disabled={isSaving}
                         >
                           Cancel
                         </button>
@@ -483,7 +632,7 @@ const Profile = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Full Name</h3>
-                          <p className="font-medium">{userData.name}</p>
+                          <p className="font-medium">{userData.name || 'Not provided'}</p>
                         </div>
                         <div>
                           <h3 className="text-sm text-light-textSecondary dark:text-dark-textSecondary mb-1">Email Address</h3>
@@ -504,14 +653,20 @@ const Profile = () => {
                       <div className="mb-6">
                         <h2 className="text-2xl font-bold mb-4">Fitness Goals</h2>
                         <div className="flex flex-wrap gap-2">
-                          {userData.fitness_goals?.map((goal, index) => (
-                            <span 
-                              key={index}
-                              className="bg-light-background dark:bg-dark-background px-3 py-1 rounded-full text-sm"
-                            >
-                              {goal}
-                            </span>
-                          ))}
+                          {userData.fitness_goals?.length > 0 ? (
+                            userData.fitness_goals.map((goal, index) => (
+                              <span 
+                                key={index}
+                                className="bg-light-background dark:bg-dark-background px-3 py-1 rounded-full text-sm"
+                              >
+                                {goal}
+                              </span>
+                            ))
+                          ) : (
+                            <p className="text-light-textSecondary dark:text-dark-textSecondary">
+                              No fitness goals set yet
+                            </p>
+                          )}
                         </div>
                       </div>
                       
