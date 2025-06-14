@@ -42,28 +42,34 @@ const GymCard = ({ gym }) => {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-        <img
-          src={displayImage}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-        />
-        {distance && (
-          <div className="absolute top-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center">
-            <FiMapPin size={12} className="mr-1" />
-            <span>{distance} km</span>
-          </div>
-        )}
-        {monthlyPrice && (
-          <div className="absolute top-3 left-3 bg-red-600 text-white text-sm px-2 py-1 rounded-full flex items-center font-bold">
-            <FiDollarSign size={12} className="mr-1" />
-            <span>{monthlyPrice} {currency}/month</span>
-          </div>
-        )}
-      </div>
+      <Link to={`/gym/${id}`} className="block">
+        <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+          <img
+            src={displayImage}
+            alt={name}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+          />
+          {distance && (
+            <div className="absolute top-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center">
+              <FiMapPin size={12} className="mr-1" />
+              <span>{distance} km</span>
+            </div>
+          )}
+          {monthlyPrice && (
+            <div className="absolute top-3 left-3 bg-red-600 text-white text-sm px-2 py-1 rounded-full flex items-center font-bold">
+              <FiDollarSign size={12} className="mr-1" />
+              <span>{monthlyPrice} {currency}/month</span>
+            </div>
+          )}
+        </div>
+      </Link>
 
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold mb-2">{name}</h3>
+        <Link to={`/gym/${id}`} className="block">
+          <h3 className="text-xl font-bold mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            {name}
+          </h3>
+        </Link>
 
         <div className="flex items-center text-sm text-light-textSecondary dark:text-dark-textSecondary mb-2">
           <FiMapPin size={14} className="mr-1" />
@@ -137,8 +143,8 @@ const GymCard = ({ gym }) => {
       </div>
 
       <div className="p-5 pt-0">
-        <Link to={`/gym/${id}`} className="w-full btn btn-primary">
-          Subscribe Now
+        <Link to={`/gym/${id}`} className="w-full btn btn-outline hover:btn-primary transition-all duration-300">
+          View Details
         </Link>
       </div>
     </motion.div>

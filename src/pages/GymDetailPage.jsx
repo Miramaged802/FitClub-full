@@ -96,7 +96,7 @@ const GymDetailPage = () => {
       <div className="container-custom">
         {/* Back button */}
         <motion.button
-          className="flex items-center text-primary-600 dark:text-primary-500 mb-6"
+          className="flex items-center text-primary-600 dark:text-primary-500 mb-6 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
           onClick={() => navigate("/gyms")}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -124,8 +124,10 @@ const GymDetailPage = () => {
             {gym.images.map((image, index) => (
               <motion.button
                 key={index}
-                className={`relative h-44 rounded-lg overflow-hidden ${
-                  selectedImage === index ? "ring-2 ring-primary-500" : ""
+                className={`relative h-44 rounded-lg overflow-hidden transition-all duration-300 ${
+                  selectedImage === index 
+                    ? "ring-2 ring-primary-500 shadow-lg" 
+                    : "hover:ring-2 hover:ring-primary-300"
                 }`}
                 onClick={() => setSelectedImage(index)}
                 initial={{ opacity: 0, y: 20 }}
@@ -200,7 +202,7 @@ const GymDetailPage = () => {
                     {/* Subscribe Button */}
                     <div className="mt-6 text-center">
                       <button 
-                        className="btn btn-primary btn-lg px-8 py-3"
+                        className="btn btn-primary btn-lg px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
                         onClick={handleSubscribeClick}
                       >
                         Subscribe Now
@@ -217,7 +219,7 @@ const GymDetailPage = () => {
                   {gym.amenities.map((amenity, index) => (
                     <div
                       key={index}
-                      className="flex items-center p-3 bg-light-background dark:bg-dark-background rounded-lg"
+                      className="flex items-center p-3 bg-light-background dark:bg-dark-background rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
                     >
                       <FiCheck className="text-success-500 mr-2" />
                       <span>{amenity}</span>
@@ -234,7 +236,7 @@ const GymDetailPage = () => {
                     {gym.classes.map((classItem, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 bg-light-background dark:bg-dark-background rounded-lg"
+                        className="flex items-center justify-between p-4 bg-light-background dark:bg-dark-background rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
                       >
                         <div>
                           <h3 className="font-medium">{classItem.name}</h3>
@@ -244,7 +246,7 @@ const GymDetailPage = () => {
                         </div>
                         <div className="text-right">
                           <p className="font-medium">{classItem.time}</p>
-                          <button className="text-sm text-primary-600 dark:text-primary-500">
+                          <button className="text-sm text-primary-600 dark:text-primary-500 hover:text-primary-700 dark:hover:text-primary-400 transition-colors">
                             Book Now
                           </button>
                         </div>
@@ -270,9 +272,9 @@ const GymDetailPage = () => {
                   {Object.entries(displayHours).map(([day, hours]) => (
                     <div
                       key={day}
-                      className="flex justify-between items-center"
+                      className="flex justify-between items-center py-2 border-b border-light-border dark:border-dark-border last:border-b-0"
                     >
-                      <span className="capitalize">{day}</span>
+                      <span className="capitalize font-medium">{day}</span>
                       <span className="text-light-textSecondary dark:text-dark-textSecondary">
                         {hours}
                       </span>
@@ -286,7 +288,7 @@ const GymDetailPage = () => {
                 <h2 className="text-xl font-bold mb-4">Contact Information</h2>
                 <div className="space-y-4">
                   {gym.phone && (
-                    <div className="flex items-center">
+                    <div className="flex items-center hover:bg-light-background dark:hover:bg-dark-background p-2 rounded-lg transition-colors">
                       <FiPhone className="mr-3 text-primary-600 dark:text-primary-500" />
                       <a 
                         href={`tel:${gym.phone}`}
@@ -297,7 +299,7 @@ const GymDetailPage = () => {
                     </div>
                   )}
                   {gym.email && (
-                    <div className="flex items-center">
+                    <div className="flex items-center hover:bg-light-background dark:hover:bg-dark-background p-2 rounded-lg transition-colors">
                       <FiMail className="mr-3 text-primary-600 dark:text-primary-500" />
                       <a
                         href={`mailto:${gym.email}`}
@@ -308,7 +310,7 @@ const GymDetailPage = () => {
                     </div>
                   )}
                   {gym.website && (
-                    <div className="flex items-center">
+                    <div className="flex items-center hover:bg-light-background dark:hover:bg-dark-background p-2 rounded-lg transition-colors">
                       <FiGlobe className="mr-3 text-primary-600 dark:text-primary-500" />
                       <a
                         href={`https://${gym.website}`}
@@ -321,7 +323,7 @@ const GymDetailPage = () => {
                     </div>
                   )}
                   {gym.instagram && (
-                    <div className="flex items-center">
+                    <div className="flex items-center hover:bg-light-background dark:hover:bg-dark-background p-2 rounded-lg transition-colors">
                       <FiInstagram className="mr-3 text-primary-600 dark:text-primary-500" />
                       <a
                         href={`https://instagram.com/${gym.instagram.substring(1)}`}
@@ -361,7 +363,7 @@ const GymDetailPage = () => {
                 <h2 className="text-2xl font-bold">Subscribe to {gym.name}</h2>
                 <button
                   onClick={() => setShowSubscriptionModal(false)}
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <FiX size={20} />
                 </button>
@@ -401,10 +403,10 @@ const GymDetailPage = () => {
                 {plans.map((plan) => (
                   <div
                     key={plan.id}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
                       selectedPlan?.id === plan.id
-                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                        : "border-light-border dark:border-dark-border hover:border-primary-300"
+                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md"
+                        : "border-light-border dark:border-dark-border hover:border-primary-300 hover:shadow-sm"
                     }`}
                     onClick={() => setSelectedPlan(plan)}
                   >
@@ -444,7 +446,7 @@ const GymDetailPage = () => {
 
               {/* Subscribe Button */}
               <button
-                className="w-full btn btn-primary btn-lg"
+                className="w-full btn btn-primary btn-lg shadow-lg hover:shadow-xl transition-all duration-300"
                 onClick={handleSubscribe}
                 disabled={isLoading || !selectedPlan}
               >
