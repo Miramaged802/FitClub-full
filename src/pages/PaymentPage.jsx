@@ -480,7 +480,7 @@ const PaymentPage = () => {
               <div className="border-t border-light-border dark:border-dark-border pt-6 mb-6">
                 <h4 className="font-semibold mb-3">What's Included:</h4>
                 <ul className="space-y-2">
-                  {selectedPlan && JSON.parse(selectedPlan.features || '[]').slice(0, 5).map((feature, index) => (
+                  {selectedPlan && (selectedPlan.features || []).slice(0, 5).map((feature, index) => (
                     <li key={index} className="flex items-start text-sm">
                       <FiCheck className="text-success-500 mr-2 mt-0.5 flex-shrink-0" size={14} />
                       <span>{feature}</span>
