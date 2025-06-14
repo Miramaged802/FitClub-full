@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-light-background dark:bg-dark-background text-light-text dark:text-dark-text transition-colors duration-200;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold leading-tight;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  p {
+    @apply leading-relaxed;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply w-[90%] max-w-7xl mx-auto;
+  }
+  
+  .btn {
+    @apply px-6 py-2.5 rounded-lg font-medium transition-all duration-200 inline-flex items-center justify-center;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-600 hover:bg-secondary-700 text-white;
+  }
+  
+  .btn-accent {
+    @apply bg-accent-600 hover:bg-accent-700 text-white;
+  }
+  
+  .btn-outline {
+    @apply border border-light-border dark:border-dark-border hover:bg-light-card dark:hover:bg-dark-card;
+  }
+  
+  .card {
+    @apply bg-light-card dark:bg-dark-card rounded-xl p-6 shadow-light dark:shadow-dark transition-all duration-200;
+  }
+  
+  .input {
+    @apply bg-light-background dark:bg-dark-card border border-light-border dark:border-dark-border rounded-lg px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-primary-500;
+  }
+}

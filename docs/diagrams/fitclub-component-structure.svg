@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1000" height="800" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>FitClub Component Structure</title>
+    <style>
+        .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #212529; text-anchor: middle; }
+        .subtitle { font-family: Arial, sans-serif; font-size: 16px; fill: #6c757d; text-anchor: middle; }
+        .component { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; }
+        .component-core { fill: #e3f2fd; stroke: #0d47a1; stroke-width: 2; }
+        .component-ui { fill: #e8f5e9; stroke: #1b5e20; stroke-width: 2; }
+        .component-feature { fill: #fff3e0; stroke: #e65100; stroke-width: 2; }
+        .component-util { fill: #f3e5f5; stroke: #4a148c; stroke-width: 2; }
+        .connection { stroke: #495057; stroke-width: 1.5; marker-end: url(#arrow); }
+        .text { font-family: Arial, sans-serif; font-size: 14px; fill: #212529; text-anchor: middle; }
+        .small-text { font-family: Arial, sans-serif; font-size: 12px; fill: #212529; text-anchor: middle; }
+        .legend-box { fill: #ffffff; stroke: #adb5bd; stroke-width: 1; }
+        .legend-text { font-family: Arial, sans-serif; font-size: 12px; fill: #212529; }
+        .legend-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #212529; }
+    </style>
+    
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#495057" />
+        </marker>
+    </defs>
+    
+    <text x="500" y="40" class="title">FitClub Component Structure</text>
+    <text x="500" y="70" class="subtitle">React Components with Supabase Integration</text>
+    
+    <!-- Core App Structure -->
+    <rect x="450" y="120" width="100" height="60" rx="10" ry="10" class="component-core" />
+    <text x="500" y="155" class="text">App</text>
+    
+    <rect x="250" y="220" width="100" height="60" rx="10" ry="10" class="component-core" />
+    <text x="300" y="255" class="text">Router</text>
+    
+    <rect x="450" y="220" width="100" height="60" rx="10" ry="10" class="component-core" />
+    <text x="500" y="255" class="text">Layout</text>
+    
+    <rect x="650" y="220" width="100" height="60" rx="10" ry="10" class="component-core" />
+    <text x="700" y="255" class="text">AuthProvider</text>
+    
+    <!-- UI Components -->
+    <rect x="250" y="320" width="100" height="60" rx="10" ry="10" class="component-ui" />
+    <text x="300" y="355" class="text">Header</text>
+    
+    <rect x="400" y="320" width="100" height="60" rx="10" ry="10" class="component-ui" />
+    <text x="450" y="355" class="text">Footer</text>
+    
+    <rect x="550" y="320" width="100" height="60" rx="10" ry="10" class="component-ui" />
+    <text x="600" y="355" class="text">Sidebar</text>
+    
+    <rect x="700" y="320" width="100" height="60" rx="10" ry="10" class="component-ui" />
+    <text x="750" y="355" class="text">LoadingSpinner</text>
+    
+    <!-- Feature Pages -->
+    <rect x="100" y="420" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="150" y="455" class="text">Home</text>
+    
+    <rect x="250" y="420" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="300" y="455" class="text">Login</text>
+    
+    <rect x="400" y="420" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="450" y="455" class="text">Register</text>
+    
+    <rect x="550" y="420" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="600" y="455" class="text">Profile</text>
+    
+    <rect x="700" y="420" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="750" y="455" class="text">Plans</text>
+    
+    <rect x="850" y="420" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="900" y="455" class="text">Gyms</text>
+    
+    <!-- Sub-components -->
+    <rect x="100" y="520" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="150" y="555" class="text">Hero</text>
+    
+    <rect x="250" y="520" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="300" y="555" class="text">LoginForm</text>
+    
+    <rect x="400" y="520" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="450" y="555" class="text">RegisterForm</text>
+    
+    <rect x="550" y="520" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="600" y="555" class="text">ProfileForm</text>
+    
+    <rect x="700" y="520" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="750" y="555" class="text">PlanCard</text>
+    
+    <rect x="850" y="520" width="100" height="60" rx="10" ry="10" class="component-feature" />
+    <text x="900" y="555" class="text">GymCard</text>
+    
+    <!-- Utility Components -->
+    <rect x="175" y="620" width="100" height="60" rx="10" ry="10" class="component-util" />
+    <text x="225" y="655" class="text">supabase.js</text>
+    
+    <rect x="325" y="620" width="100" height="60" rx="10" ry="10" class="component-util" />
+    <text x="375" y="655" class="text">useAuth</text>
+    
+    <rect x="475" y="620" width="100" height="60" rx="10" ry="10" class="component-util" />
+    <text x="525" y="655" class="text">useSupabase</text>
+    
+    <rect x="625" y="620" width="100" height="60" rx="10" ry="10" class="component-util" />
+    <text x="675" y="655" class="text">useForm</text>
+    
+    <rect x="775" y="620" width="100" height="60" rx="10" ry="10" class="component-util" />
+    <text x="825" y="655" class="text">useGoogleMaps</text>
+    
+    <!-- Connections -->
+    <!-- App to Core -->
+    <line x1="500" y1="180" x2="500" y2="220" class="connection" />
+    <line x1="475" y1="180" x2="300" y2="220" class="connection" />
+    <line x1="525" y1="180" x2="700" y2="220" class="connection" />
+    
+    <!-- Layout to UI -->
+    <line x1="450" y1="280" x2="300" y2="320" class="connection" />
+    <line x1="475" y1="280" x2="450" y2="320" class="connection" />
+    <line x1="525" y1="280" x2="600" y2="320" class="connection" />
+    <line x1="550" y1="280" x2="750" y2="320" class="connection" />
+    
+    <!-- Router to Pages -->
+    <line x1="275" y1="280" x2="150" y2="420" class="connection" />
+    <line x1="285" y1="280" x2="300" y2="420" class="connection" />
+    <line x1="295" y1="280" x2="450" y2="420" class="connection" />
+    <line x1="305" y1="280" x2="600" y2="420" class="connection" />
+    <line x1="315" y1="280" x2="750" y2="420" class="connection" />
+    <line x1="325" y1="280" x2="900" y2="420" class="connection" />
+    
+    <!-- Pages to Sub-components -->
+    <line x1="150" y1="480" x2="150" y2="520" class="connection" />
+    <line x1="300" y1="480" x2="300" y2="520" class="connection" />
+    <line x1="450" y1="480" x2="450" y2="520" class="connection" />
+    <line x1="600" y1="480" x2="600" y2="520" class="connection" />
+    <line x1="750" y1="480" x2="750" y2="520" class="connection" />
+    <line x1="900" y1="480" x2="900" y2="520" class="connection" />
+    
+    <!-- Auth Provider to Auth Hook -->
+    <line x1="700" y1="280" x2="375" y2="620" class="connection" />
+    
+    <!-- Feature Components to Utility -->
+    <line x1="300" y1="580" x2="225" y2="620" class="connection" />
+    <line x1="450" y1="580" x2="375" y2="620" class="connection" />
+    <line x1="600" y1="580" x2="525" y2="620" class="connection" />
+    <line x1="750" y1="580" x2="675" y2="620" class="connection" />
+    <line x1="900" y1="580" x2="825" y2="620" class="connection" />
+    
+    <!-- Legend -->
+    <rect x="750" y="700" width="200" height="90" class="legend-box" />
+    <text x="850" y="720" class="legend-title">Component Types</text>
+    
+    <rect x="770" y="735" width="20" height="15" class="component-core" />
+    <text x="860" y="747" class="legend-text">Core Components</text>
+    
+    <rect x="770" y="760" width="20" height="15" class="component-ui" />
+    <text x="860" y="772" class="legend-text">UI Components</text>
+    
+    <rect x="770" y="735" width="20" height="15" rx="5" ry="5" transform="translate(0, 25)" class="component-feature" />
+    <text x="860" y="772" transform="translate(0, 25)" class="legend-text">Feature Components</text>
+    
+    <rect x="770" y="760" width="20" height="15" rx="5" ry="5" transform="translate(0, 25)" class="component-util" />
+    <text x="860" y="772" transform="translate(0, 25)" class="legend-text">Utility Components</text>
+</svg>

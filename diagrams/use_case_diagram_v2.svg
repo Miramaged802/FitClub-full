@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="700" viewBox="0 0 900 700">
+  <title>FitClub Use Case Diagram</title>
+  <style>
+    .usecase {
+      fill: #e6f3ff;
+      stroke: #0066cc;
+      stroke-width: 2;
+    }
+    .system {
+      fill: #f8f9fa;
+      stroke: #495057;
+      stroke-width: 2;
+      stroke-dasharray: none;
+    }
+    .actor-label {
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      text-anchor: middle;
+    }
+    .usecase-text {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      text-anchor: middle;
+      font-weight: 500;
+    }
+    .title {
+      font-family: 'Arial', sans-serif;
+      font-size: 24px;
+      font-weight: bold;
+      text-anchor: middle;
+    }
+    .subtitle {
+      font-family: 'Arial', sans-serif;
+      font-size: 16px;
+      font-weight: normal;
+      text-anchor: middle;
+      font-style: italic;
+    }
+    .system-label {
+      font-family: 'Arial', sans-serif;
+      font-size: 18px;
+      font-weight: bold;
+      text-anchor: middle;
+    }
+    .relationship {
+      stroke: #333;
+      stroke-width: 1.5;
+    }
+    .include-relationship {
+      stroke: #333;
+      stroke-width: 1.5;
+      stroke-dasharray: 5,3;
+    }
+    .include-text {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      font-style: italic;
+      fill: #666;
+    }
+    .extend-relationship {
+      stroke: #333;
+      stroke-width: 1.5;
+      stroke-dasharray: 5,3;
+    }
+    .extend-text {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      font-style: italic;
+      fill: #666;
+    }
+    .actor {
+      stroke: #333;
+      stroke-width: 1.5;
+      fill: #fff;
+    }
+  </style>
+  
+  <!-- Title and metadata -->
+  <text x="450" y="30" class="title">FitClub - Use Case Diagram</text>
+  <text x="450" y="60" class="subtitle">Fitness Club Management System</text>
+  
+  <!-- System boundary -->
+  <rect x="200" y="90" width="600" height="550" rx="15" ry="15" class="system" />
+  <text x="500" y="120" class="system-label">FitClub System</text>
+  
+  <!-- Actors -->
+  <!-- Member Actor -->
+  <g transform="translate(100, 200)">
+    <circle cx="0" cy="-15" r="10" class="actor" />
+    <line x1="0" y1="-5" x2="0" y2="20" class="actor" />
+    <line x1="-15" y1="5" x2="15" y2="5" class="actor" />
+    <line x1="0" y1="20" x2="-10" y2="40" class="actor" />
+    <line x1="0" y1="20" x2="10" y2="40" class="actor" />
+    <text x="0" y="60" class="actor-label">Member</text>
+  </g>
+  
+  <!-- Trainer Actor -->
+  <g transform="translate(100, 350)">
+    <circle cx="0" cy="-15" r="10" class="actor" />
+    <line x1="0" y1="-5" x2="0" y2="20" class="actor" />
+    <line x1="-15" y1="5" x2="15" y2="5" class="actor" />
+    <line x1="0" y1="20" x2="-10" y2="40" class="actor" />
+    <line x1="0" y1="20" x2="10" y2="40" class="actor" />
+    <text x="0" y="60" class="actor-label">Trainer</text>
+  </g>
+  
+  <!-- Admin Actor -->
+  <g transform="translate(100, 500)">
+    <circle cx="0" cy="-15" r="10" class="actor" />
+    <line x1="0" y1="-5" x2="0" y2="20" class="actor" />
+    <line x1="-15" y1="5" x2="15" y2="5" class="actor" />
+    <line x1="0" y1="20" x2="-10" y2="40" class="actor" />
+    <line x1="0" y1="20" x2="10" y2="40" class="actor" />
+    <text x="0" y="60" class="actor-label">Admin</text>
+  </g>
+  
+  <!-- Use Cases -->
+  <!-- Authentication Use Cases -->
+  <g transform="translate(300, 180)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Register Account</text>
+  </g>
+  
+  <g transform="translate(300, 250)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Login</text>
+  </g>
+  
+  <!-- Member Use Cases -->
+  <g transform="translate(300, 320)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">View Profile</text>
+  </g>
+  
+  <g transform="translate(300, 390)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Browse Gyms</text>
+  </g>
+  
+  <g transform="translate(300, 460)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">View Plans</text>
+  </g>
+  
+  <g transform="translate(300, 530)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Book Sessions</text>
+  </g>
+  
+  <!-- Trainer Use Cases -->
+  <g transform="translate(500, 180)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Create Plans</text>
+  </g>
+  
+  <g transform="translate(500, 250)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Manage Schedule</text>
+  </g>
+  
+  <g transform="translate(500, 320)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">View Clients</text>
+  </g>
+  
+  <!-- Admin Use Cases -->
+  <g transform="translate(700, 180)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Manage Users</text>
+  </g>
+  
+  <g transform="translate(700, 250)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Manage Gyms</text>
+  </g>
+  
+  <g transform="translate(700, 320)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">Manage Plans</text>
+  </g>
+  
+  <g transform="translate(700, 390)">
+    <ellipse cx="0" cy="0" rx="70" ry="25" class="usecase" />
+    <text x="0" y="5" class="usecase-text">View Analytics</text>
+  </g>
+  
+  <!-- Connections -->
+  <!-- Member connections -->
+  <line x1="110" y1="200" x2="230" y2="180" class="relationship" />
+  <line x1="110" y1="200" x2="230" y2="250" class="relationship" />
+  <line x1="110" y1="200" x2="230" y2="320" class="relationship" />
+  <line x1="110" y1="200" x2="230" y2="390" class="relationship" />
+  <line x1="110" y1="200" x2="230" y2="460" class="relationship" />
+  <line x1="110" y1="200" x2="230" y2="530" class="relationship" />
+  
+  <!-- Trainer connections -->
+  <line x1="110" y1="350" x2="230" y2="250" class="relationship" />
+  <line x1="110" y1="350" x2="430" y2="180" class="relationship" />
+  <line x1="110" y1="350" x2="430" y2="250" class="relationship" />
+  <line x1="110" y1="350" x2="430" y2="320" class="relationship" />
+  
+  <!-- Admin connections -->
+  <line x1="110" y1="500" x2="230" y2="250" class="relationship" />
+  <line x1="110" y1="500" x2="630" y2="180" class="relationship" />
+  <line x1="110" y1="500" x2="630" y2="250" class="relationship" />
+  <line x1="110" y1="500" x2="630" y2="320" class="relationship" />
+  <line x1="110" y1="500" x2="630" y2="390" class="relationship" />
+  
+  <!-- Include relationships -->
+  <!-- View Profile includes Login -->
+  <line x1="300" y1="320" x2="300" y2="275" class="include-relationship" />
+  <text x="320" y="300" class="include-text">«include»</text>
+  
+  <!-- Browse Gyms includes Login -->
+  <line x1="300" y1="390" x2="300" y2="275" class="include-relationship" />
+  <text x="320" y="340" class="include-text">«include»</text>
+  
+  <!-- View Plans includes Login -->
+  <line x1="300" y1="460" x2="300" y2="275" class="include-relationship" />
+  <text x="320" y="370" class="include-text">«include»</text>
+  
+  <!-- Book Sessions includes Login -->
+  <line x1="300" y1="530" x2="300" y2="275" class="include-relationship" />
+  <text x="320" y="400" class="include-text">«include»</text>
+  
+  <!-- Create Plans includes Login -->
+  <line x1="500" y1="180" x2="370" y2="250" class="include-relationship" />
+  <text x="420" y="200" class="include-text">«include»</text>
+  
+  <!-- Manage Schedule includes Login -->
+  <line x1="500" y1="250" x2="370" y2="250" class="include-relationship" />
+  <text x="435" y="235" class="include-text">«include»</text>
+  
+  <!-- View Clients includes Login -->
+  <line x1="500" y1="320" x2="370" y2="250" class="include-relationship" />
+  <text x="420" y="270" class="include-text">«include»</text>
+  
+  <!-- Admin use cases include Login -->
+  <line x1="700" y1="180" x2="370" y2="250" class="include-relationship" />
+  <text x="530" y="200" class="include-text">«include»</text>
+  
+  <line x1="700" y1="250" x2="370" y2="250" class="include-relationship" />
+  <text x="530" y="235" class="include-text">«include»</text>
+  
+  <line x1="700" y1="320" x2="370" y2="250" class="include-relationship" />
+  <text x="530" y="270" class="include-text">«include»</text>
+  
+  <line x1="700" y1="390" x2="370" y2="250" class="include-relationship" />
+  <text x="530" y="305" class="include-text">«include»</text>
+  
+  <!-- Footer -->
+  <text x="800" y="680" text-anchor="end" font-family="Arial" font-size="10" font-style="italic">Created: 2025-06-11</text>
+</svg>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800" height="600" viewBox="0 0 800 600">
+  <title>FitClub Use Case Diagram</title>
+  <defs>
+    <!-- Actor symbol -->
+    <symbol id="actor" viewBox="0 0 30 50">
+      <circle cx="15" cy="10" r="8" stroke="black" stroke-width="1" fill="white" />
+      <line x1="15" y1="18" x2="15" y2="35" stroke="black" stroke-width="1" />
+      <line x1="15" y1="35" x2="5" y2="50" stroke="black" stroke-width="1" />
+      <line x1="15" y1="35" x2="25" y2="50" stroke="black" stroke-width="1" />
+      <line x1="0" y1="25" x2="30" y2="25" stroke="black" stroke-width="1" />
+    </symbol>
+    
+    <!-- Use case ellipse -->
+    <g id="usecase">
+      <ellipse cx="0" cy="0" rx="70" ry="25" stroke="black" stroke-width="1" fill="white" />
+    </g>
+  </defs>
+  
+  <!-- Background rectangle -->
+  <rect x="200" y="50" width="500" height="500" rx="10" ry="10" fill="#f8f9fa" stroke="black" stroke-width="1" />
+  <text x="450" y="80" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">FitClub System</text>
+  
+  <!-- Actors -->
+  <use xlink:href="#actor" x="100" y="150" />
+  <text x="100" y="220" text-anchor="middle" font-family="Arial" font-size="14">User</text>
+  
+  <use xlink:href="#actor" x="100" y="400" />
+  <text x="100" y="470" text-anchor="middle" font-family="Arial" font-size="14">Admin</text>
+  
+  <!-- Use Cases -->
+  <g transform="translate(300, 120)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">Register Account</text>
+  </g>
+  
+  <g transform="translate(300, 190)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">Login</text>
+  </g>
+  
+  <g transform="translate(300, 260)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">View Profile</text>
+  </g>
+  
+  <g transform="translate(300, 330)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">Browse Gyms</text>
+  </g>
+  
+  <g transform="translate(300, 400)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">View Training Plans</text>
+  </g>
+  
+  <g transform="translate(500, 190)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">Manage Users</text>
+  </g>
+  
+  <g transform="translate(500, 260)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">Manage Gyms</text>
+  </g>
+  
+  <g transform="translate(500, 330)">
+    <use xlink:href="#usecase" />
+    <text x="0" y="5" text-anchor="middle" font-family="Arial" font-size="12">Manage Plans</text>
+  </g>
+  
+  <!-- Connections -->
+  <!-- User connections -->
+  <line x1="130" y1="170" x2="230" y2="120" stroke="black" stroke-width="1" />
+  <line x1="130" y1="170" x2="230" y2="190" stroke="black" stroke-width="1" />
+  <line x1="130" y1="170" x2="230" y2="260" stroke="black" stroke-width="1" />
+  <line x1="130" y1="170" x2="230" y2="330" stroke="black" stroke-width="1" />
+  <line x1="130" y1="170" x2="230" y2="400" stroke="black" stroke-width="1" />
+  
+  <!-- Admin connections -->
+  <line x1="130" y1="420" x2="230" y2="190" stroke="black" stroke-width="1" />
+  <line x1="130" y1="420" x2="430" y2="190" stroke="black" stroke-width="1" />
+  <line x1="130" y1="420" x2="430" y2="260" stroke="black" stroke-width="1" />
+  <line x1="130" y1="420" x2="430" y2="330" stroke="black" stroke-width="1" />
+  
+  <!-- Include relationships -->
+  <line x1="370" y1="260" x2="300" y2="215" stroke="black" stroke-width="1" stroke-dasharray="5,5" />
+  <text x="340" y="230" font-family="Arial" font-size="10" font-style="italic">«include»</text>
+  
+  <line x1="370" y1="330" x2="300" y2="215" stroke="black" stroke-width="1" stroke-dasharray="5,5" />
+  <text x="340" y="270" font-family="Arial" font-size="10" font-style="italic">«include»</text>
+  
+  <line x1="370" y1="400" x2="300" y2="215" stroke="black" stroke-width="1" stroke-dasharray="5,5" />
+  <text x="340" y="310" font-family="Arial" font-size="10" font-style="italic">«include»</text>
+  
+  <line x1="500" y1="190" x2="300" y2="190" stroke="black" stroke-width="1" stroke-dasharray="5,5" />
+  <text x="400" y="180" font-family="Arial" font-size="10" font-style="italic">«include»</text>
+  
+  <line x1="500" y1="260" x2="300" y2="190" stroke="black" stroke-width="1" stroke-dasharray="5,5" />
+  <text x="400" y="220" font-family="Arial" font-size="10" font-style="italic">«include»</text>
+  
+  <line x1="500" y1="330" x2="300" y2="190" stroke="black" stroke-width="1" stroke-dasharray="5,5" />
+  <text x="400" y="260" font-family="Arial" font-size="10" font-style="italic">«include»</text>
+  
+  <!-- Title and metadata -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold">FitClub - Use Case Diagram</text>
+  <text x="700" y="580" text-anchor="end" font-family="Arial" font-size="10" font-style="italic">Created: 2025-06-11</text>
+</svg>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1000" height="800" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>FitClub Application Site Map</title>
+    <style>
+        .title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: #212529; text-anchor: middle; }
+        .subtitle { font-family: Arial, sans-serif; font-size: 16px; fill: #6c757d; text-anchor: middle; }
+        .page { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; }
+        .page-auth { fill: #e2f0d9; stroke: #2e7d32; stroke-width: 2; }
+        .page-main { fill: #d0e2f3; stroke: #1565c0; stroke-width: 2; }
+        .page-feature { fill: #fce8d6; stroke: #e65100; stroke-width: 2; }
+        .page-admin { fill: #f3e5f5; stroke: #6a1b9a; stroke-width: 2; }
+        .connection { stroke: #495057; stroke-width: 1.5; marker-end: url(#arrow); }
+        .auth-connection { stroke: #2e7d32; stroke-width: 1.5; marker-end: url(#arrow); stroke-dasharray: 5,5; }
+        .text { font-family: Arial, sans-serif; font-size: 14px; fill: #212529; text-anchor: middle; }
+        .legend-box { fill: #ffffff; stroke: #adb5bd; stroke-width: 1; }
+        .legend-text { font-family: Arial, sans-serif; font-size: 12px; fill: #212529; }
+        .legend-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #212529; }
+    </style>
+    
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#495057" />
+        </marker>
+    </defs>
+    
+    <text x="500" y="40" class="title">FitClub Application Site Map</text>
+    <text x="500" y="70" class="subtitle">Supabase Backend Integration</text>
+    
+    <!-- Home Page (Center) -->
+    <rect x="450" y="120" width="100" height="60" rx="10" ry="10" class="page-main" />
+    <text x="500" y="155" class="text">Home</text>
+    
+    <!-- Authentication Pages (Top) -->
+    <rect x="250" y="120" width="100" height="60" rx="10" ry="10" class="page-auth" />
+    <text x="300" y="155" class="text">Login</text>
+    
+    <rect x="100" y="120" width="100" height="60" rx="10" ry="10" class="page-auth" />
+    <text x="150" y="155" class="text">Register</text>
+    
+    <rect x="650" y="120" width="100" height="60" rx="10" ry="10" class="page-auth" />
+    <text x="700" y="155" class="text">Profile</text>
+    
+    <rect x="800" y="120" width="100" height="60" rx="10" ry="10" class="page-auth" />
+    <text x="850" y="155" class="text">Logout</text>
+    
+    <!-- Main Navigation Pages (Middle) -->
+    <rect x="250" y="250" width="100" height="60" rx="10" ry="10" class="page-main" />
+    <text x="300" y="285" class="text">About</text>
+    
+    <rect x="450" y="250" width="100" height="60" rx="10" ry="10" class="page-main" />
+    <text x="500" y="285" class="text">Dashboard</text>
+    
+    <rect x="650" y="250" width="100" height="60" rx="10" ry="10" class="page-main" />
+    <text x="700" y="285" class="text">Contact</text>
+    
+    <!-- Feature Pages (Bottom) -->
+    <rect x="100" y="400" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="150" y="435" class="text">Plans</text>
+    
+    <rect x="250" y="400" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="300" y="435" class="text">Gyms</text>
+    
+    <rect x="400" y="400" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="450" y="435" class="text">Classes</text>
+    
+    <rect x="550" y="400" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="600" y="435" class="text">Trainers</text>
+    
+    <rect x="700" y="400" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="750" y="435" class="text">Nutrition</text>
+    
+    <rect x="850" y="400" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="900" y="435" class="text">Blog</text>
+    
+    <!-- Sub-pages -->
+    <rect x="100" y="520" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="150" y="555" class="text">Subscription</text>
+    
+    <rect x="250" y="520" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="300" y="555" class="text">Gym Details</text>
+    
+    <rect x="400" y="520" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="450" y="555" class="text">Class Details</text>
+    
+    <rect x="550" y="520" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="600" y="555" class="text">Trainer Profile</text>
+    
+    <rect x="700" y="520" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="750" y="555" class="text">Meal Plans</text>
+    
+    <rect x="850" y="520" width="100" height="60" rx="10" ry="10" class="page-feature" />
+    <text x="900" y="555" class="text">Article</text>
+    
+    <!-- Admin Pages -->
+    <rect x="450" y="650" width="100" height="60" rx="10" ry="10" class="page-admin" />
+    <text x="500" y="685" class="text">Admin Panel</text>
+    
+    <!-- Connections -->
+    <!-- Home to Main Nav -->
+    <line x1="500" y1="180" x2="500" y2="250" class="connection" />
+    <line x1="475" y1="180" x2="300" y2="250" class="connection" />
+    <line x1="525" y1="180" x2="700" y2="250" class="connection" />
+    
+    <!-- Home to Auth -->
+    <line x1="450" y1="150" x2="350" y2="150" class="connection" />
+    <line x1="250" y1="150" x2="200" y2="150" class="connection" />
+    <line x1="550" y1="150" x2="650" y2="150" class="connection" />
+    <line x1="750" y1="150" x2="800" y2="150" class="connection" />
+    
+    <!-- Dashboard to Features -->
+    <line x1="475" y1="310" x2="150" y2="400" class="connection" />
+    <line x1="485" y1="310" x2="300" y2="400" class="connection" />
+    <line x1="495" y1="310" x2="450" y2="400" class="connection" />
+    <line x1="505" y1="310" x2="600" y2="400" class="connection" />
+    <line x1="515" y1="310" x2="750" y2="400" class="connection" />
+    <line x1="525" y1="310" x2="900" y2="400" class="connection" />
+    
+    <!-- Features to Sub-pages -->
+    <line x1="150" y1="460" x2="150" y2="520" class="connection" />
+    <line x1="300" y1="460" x2="300" y2="520" class="connection" />
+    <line x1="450" y1="460" x2="450" y2="520" class="connection" />
+    <line x1="600" y1="460" x2="600" y2="520" class="connection" />
+    <line x1="750" y1="460" x2="750" y2="520" class="connection" />
+    <line x1="900" y1="460" x2="900" y2="520" class="connection" />
+    
+    <!-- Admin Access -->
+    <line x1="500" y1="310" x2="500" y2="650" class="auth-connection" />
+    
+    <!-- Auth Required Connections -->
+    <line x1="150" y1="180" x2="150" y2="400" class="auth-connection" />
+    <line x1="700" y1="180" x2="700" y2="250" class="auth-connection" />
+    
+    <!-- Legend -->
+    <rect x="750" y="650" width="200" height="130" class="legend-box" />
+    <text x="850" y="670" class="legend-title">Legend</text>
+    
+    <rect x="770" y="685" width="20" height="15" class="page-main" />
+    <text x="860" y="697" class="legend-text">Main Navigation Pages</text>
+    
+    <rect x="770" y="710" width="20" height="15" class="page-auth" />
+    <text x="860" y="722" class="legend-text">Authentication Pages</text>
+    
+    <rect x="770" y="735" width="20" height="15" class="page-feature" />
+    <text x="860" y="747" class="legend-text">Feature Pages</text>
+    
+    <rect x="770" y="760" width="20" height="15" class="page-admin" />
+    <text x="860" y="772" class="legend-text">Admin Pages</text>
+</svg>
