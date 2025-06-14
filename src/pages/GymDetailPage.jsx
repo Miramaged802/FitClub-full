@@ -66,59 +66,15 @@ const GymDetailPage = () => {
   const handleSubscribe = async () => {
     if (!user || !selectedPlan) return;
 
-    setIsLoading(true);
-    try {
-      // Generate membership ID and verification code
-      const membershipId = 'FM' + Date.now().toString().slice(-8) + Math.random().toString(36).substr(2, 4).toUpperCase();
-      const verificationCode = Math.random().toString(36).substr(2, 8).toUpperCase();
-      
-      // Calculate end date
-      const startDate = new Date();
-      const endDate = new Date();
-      if (billingType === 'monthly') {
-        endDate.setMonth(endDate.getMonth() + 1);
-      } else {
-        endDate.setFullYear(endDate.getFullYear() + 1);
-      }
-
-      // Create subscription
-      const subscriptionData = {
-        user_id: user.id,
-        plan_id: selectedPlan.id,
-        membership_id: membershipId,
-        status: 'active',
-        billing_type: billingType,
-        start_date: startDate.toISOString(),
-        end_date: endDate.toISOString(),
-        verification_code: verificationCode,
-        qr_code_data: JSON.stringify({
-          membershipId,
-          planName: selectedPlan.name,
-          memberName: user.email, // Will be updated with actual name from profile
-          validUntil: endDate.toISOString(),
-          planType: billingType,
-          gymAccess: selectedPlan.gym_access_description,
-          verificationCode,
-          issueDate: startDate.toISOString(),
-          gymId: gym.id,
-          gymName: gym.name
-        })
-      };
-
-      const { data, error } = await userSubscriptions.create(subscriptionData);
-      
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      // Navigate to profile with success message
-      navigate('/profile?tab=subscription&success=true');
-    } catch (error) {
-      console.error('Subscription error:', error);
-      alert('Failed to create subscription. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    // Navigate to payment page with gym context
+    const params = new URLSearchParams({
+      plan: selectedPlan.id,
+      billing: billingType,
+      gym: gym.id,
+      gymName: gym.name
+    });
+    
+    navigate(`/payment?${params.toString()}`);
   };
 
   if (!gym) {
@@ -492,11 +448,11 @@ const GymDetailPage = () => {
                 onClick={handleSubscribe}
                 disabled={isLoading || !selectedPlan}
               >
-                {isLoading ? 'Processing...' : `Subscribe for $${billingType === 'monthly' ? selectedPlan?.price_monthly : selectedPlan?.price_yearly}/${billingType === 'monthly' ? 'month' : 'year'}`}
+                {isLoading ? 'Processing...' : `Continue to Payment - $${billingType === 'monthly' ? selectedPlan?.price_monthly : selectedPlan?.price_yearly}/${billingType === 'monthly' ? 'month' : 'year'}`}
               </button>
 
               <p className="text-xs text-light-textSecondary dark:text-dark-textSecondary text-center mt-4">
-                You'll receive a digital membership with QR code for gym access. Cancel anytime.
+                You'll be redirected to secure payment. Cancel anytime.
               </p>
             </div>
           </motion.div>

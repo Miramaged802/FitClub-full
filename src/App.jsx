@@ -11,6 +11,7 @@ import Login from './pages/Login.jsx'
 import Register from "./pages/Register.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import SubscriptionPage from "./pages/SubscriptionPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
 import GymDetailPage from "./pages/GymDetailPage.jsx";
 import ArticleDetailPage from "./pages/ArticleDetailPage.jsx";
 import GymStaffDemo from "./pages/GymStaffDemo.jsx";
@@ -42,6 +43,7 @@ function App() {
           />
           <Route path="/gym/:id" element={<GymDetailPage />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
           <Route path="/articles/:id" element={<ArticleDetailPage />} />
           <Route path="/gym-staff" element={<GymStaffDemo />} />
           <Route path="*" element={<NotFound />} />

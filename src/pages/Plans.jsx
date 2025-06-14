@@ -134,12 +134,11 @@ const Plans = () => {
 
     fetchPlans();
   }, []);
-  // This section was moved to mockSubscriptionPlansData.js
 
   const handlePlanSelect = (planId) => {
     setSelectedPlan(planId);
-    // Navigate to subscription page with selected plan
-    navigate(`/subscription?plan=${planId}&billing=${billingPeriod}`);
+    // Navigate to payment page with selected plan
+    navigate(`/payment?plan=${planId}&billing=${billingPeriod}`);
   };
 
   const plans = plansData[billingPeriod];

@@ -300,6 +300,77 @@ export const gyms = {
   },
 };
 
+// Payment transactions functions
+export const paymentTransactions = {
+  // Get all payment transactions
+  getAll: async () => {
+    const { data, error } = await supabase
+      .from("payment_transactions")
+      .select(`
+        *,
+        user_subscriptions (*),
+        profiles (*)
+      `);
+    return { data, error };
+  },
+
+  // Get payment transactions for a specific user
+  getByUserId: async (userId) => {
+    const { data, error } = await supabase
+      .from("payment_transactions")
+      .select(`
+        *,
+        user_subscriptions (*),
+        subscription_plans (*)
+      `)
+      .eq("user_id", userId)
+      .order("transaction_date", { ascending: false });
+    return { data, error };
+  },
+
+  // Get payment transactions for a specific subscription
+  getBySubscriptionId: async (subscriptionId) => {
+    const { data, error } = await supabase
+      .from("payment_transactions")
+      .select("*")
+      .eq("subscription_id", subscriptionId)
+      .order("transaction_date", { ascending: false });
+    return { data, error };
+  },
+
+  // Create a payment transaction
+  create: async (transactionData) => {
+    const { data, error } = await supabase
+      .from("payment_transactions")
+      .insert([transactionData])
+      .select(`
+        *,
+        user_subscriptions (*),
+        subscription_plans (*)
+      `);
+    return { data, error };
+  },
+
+  // Update a payment transaction
+  update: async (id, transactionData) => {
+    const { data, error } = await supabase
+      .from("payment_transactions")
+      .update(transactionData)
+      .eq("id", id)
+      .select();
+    return { data, error };
+  },
+
+  // Delete a payment transaction
+  delete: async (id) => {
+    const { error } = await supabase
+      .from("payment_transactions")
+      .delete()
+      .eq("id", id);
+    return { error };
+  },
+};
+
 // Gym access logs functions
 export const gymAccessLogs = {
   // Get all access logs
