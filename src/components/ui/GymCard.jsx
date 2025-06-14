@@ -143,7 +143,7 @@ const GymCard = ({ gym }) => {
       </div>
 
       <div className="p-5 pt-0">
-        <Link to="/gym/${id}" className="w-full btn btn-outline hover:btn-primary transition-all duration-300">
+        <Link to={`/gym/${id}`} className="w-full btn btn-outline hover:btn-primary transition-all duration-300">
           View Details
         </Link>
       </div>
