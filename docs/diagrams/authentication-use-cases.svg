@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>FitClub Authentication Use Cases</title>
+    <style>
+        .actor { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; }
+        .usecase { fill: #e9ecef; stroke: #495057; stroke-width: 2; }
+        .text { font-family: Arial, sans-serif; font-size: 14px; fill: #212529; }
+        .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #212529; }
+        .line { stroke: #6c757d; stroke-width: 1.5; }
+        .dashed { stroke-dasharray: 5,5; }
+        .system { fill: none; stroke: #adb5bd; stroke-width: 2; stroke-dasharray: 10,5; }
+    </style>
+    
+    <!-- System Boundary -->
+    <rect x="200" y="50" width="400" height="500" rx="10" ry="10" class="system" />
+    <text x="400" y="80" text-anchor="middle" class="title">FitClub Authentication System</text>
+    
+    <!-- Actor -->
+    <circle cx="100" cy="200" r="30" class="actor" />
+    <line x1="100" y1="230" x2="100" y2="320" class="line" />
+    <line x1="60" y1="260" x2="140" y2="260" class="line" />
+    <line x1="100" y1="320" x2="60" y2="380" class="line" />
+    <line x1="100" y1="320" x2="140" y2="380" class="line" />
+    <text x="100" y="420" text-anchor="middle" class="text">User</text>
+    
+    <!-- Use Cases -->
+    <ellipse cx="400" cy="150" rx="120" ry="40" class="usecase" />
+    <text x="400" y="155" text-anchor="middle" class="text">Register Account</text>
+    
+    <ellipse cx="400" cy="250" rx="120" ry="40" class="usecase" />
+    <text x="400" y="255" text-anchor="middle" class="text">Login</text>
+    
+    <ellipse cx="400" cy="350" rx="120" ry="40" class="usecase" />
+    <text x="400" y="355" text-anchor="middle" class="text">Logout</text>
+    
+    <ellipse cx="400" cy="450" rx="120" ry="40" class="usecase" />
+    <text x="400" y="455" text-anchor="middle" class="text">Update Profile</text>
+    
+    <!-- Connections -->
+    <line x1="130" y1="200" x2="280" y2="150" class="line" />
+    <line x1="130" y1="200" x2="280" y2="250" class="line" />
+    <line x1="130" y1="200" x2="280" y2="350" class="line" />
+    <line x1="130" y1="200" x2="280" y2="450" class="line" />
+    
+    <!-- Supabase Actor -->
+    <rect x="650" y="170" width="80" height="160" rx="10" ry="10" class="actor" />
+    <text x="690" y="250" text-anchor="middle" class="text" transform="rotate(90, 690, 250)">Supabase Auth</text>
+    
+    <!-- Connections to Supabase -->
+    <line x1="520" y1="150" x2="650" y2="200" class="line" />
+    <line x1="520" y1="250" x2="650" y2="250" class="line" />
+    <line x1="520" y1="350" x2="650" y2="300" class="line" />
+</svg>

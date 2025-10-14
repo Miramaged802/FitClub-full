@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <title>FitClub Project Sitemap</title>
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+    </marker>
+    <style>
+      .text-main { font-family: Arial, sans-serif; font-size: 14px; fill: white; text-anchor: middle; }
+      .text-sub { font-family: Arial, sans-serif; font-size: 12px; fill: black; text-anchor: middle; }
+      .text-api { font-family: Arial, sans-serif; font-size: 12px; fill: white; text-anchor: middle; }
+      .text-doc { font-family: Arial, sans-serif; font-size: 11px; fill: black; text-anchor: middle; }
+      .text-title { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; text-anchor: middle; }
+      .text-legend { font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; }
+      .text-legend-title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; text-anchor: middle; }
+    </style>
+    <g id="node-root">
+      <rect x="-120" y="-30" width="240" height="60" rx="10" ry="10" fill="#1A237E" stroke="#0D47A1" stroke-width="2"/>
+    </g>
+    <g id="node-section">
+      <rect x="-100" y="-25" width="200" height="50" rx="8" ry="8" fill="#283593" stroke="#1A237E" stroke-width="2"/>
+    </g>
+    <g id="node-page">
+      <rect x="-90" y="-20" width="180" height="40" rx="6" ry="6" fill="#3F51B5" stroke="#303F9F" stroke-width="1.5"/>
+    </g>
+    <g id="node-subpage">
+      <rect x="-80" y="-18" width="160" height="36" rx="5" ry="5" fill="#7986CB" stroke="#5C6BC0" stroke-width="1.5"/>
+    </g>
+    <g id="node-api">
+      <rect x="-90" y="-20" width="180" height="40" rx="6" ry="6" fill="#00695C" stroke="#004D40" stroke-width="1.5"/>
+    </g>
+    <g id="node-doc">
+      <rect x="-80" y="-18" width="160" height="36" rx="5" ry="5" fill="#FFC107" stroke="#FFA000" stroke-width="1.5"/>
+    </g>
+  </defs>
+
+  <text x="800" y="40" class="text-title">FitClub Project Sitemap</text>
+
+  <!-- Legend -->
+  <rect x="1300" y="20" width="280" height="180" rx="5" ry="5" fill="white" stroke="#ccc" stroke-width="1"/>
+  <text x="1440" y="45" class="text-legend-title">Legend</text>
+  <use xlink:href="#node-root" transform="translate(1330, 80) scale(0.4)"/>
+  <text x="1440" y="80" class="text-legend">Project Root</text>
+  <use xlink:href="#node-section" transform="translate(1330, 110) scale(0.4)"/>
+  <text x="1440" y="110" class="text-legend">Main Section</text>
+  <use xlink:href="#node-page" transform="translate(1330, 140) scale(0.4)"/>
+  <text x="1440" y="140" class="text-legend">Frontend Page</text>
+  <use xlink:href="#node-api" transform="translate(1330, 170) scale(0.4)"/>
+  <text x="1440" y="170" class="text-legend">API Section/Endpoint</text>
+  <use xlink:href="#node-doc" transform="translate(1330, 200) scale(0.4)"/>
+  <text x="1440" y="200" class="text-legend">Document/Diagram</text>
+
+  <!-- Project Root -->
+  <use xlink:href="#node-root" x="800" y="100"/>
+  <text x="800" y="105" class="text-main" font-size="16px" font-weight="bold">FitClub Application</text>
+
+  <!-- Main Sections -->
+  <line x1="800" y1="130" x2="400" y2="180" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-section" x="400" y="200"/>
+  <text x="400" y="205" class="text-main">Frontend (React App)</text>
+
+  <line x1="800" y1="130" x2="800" y2="180" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-section" x="800" y="200"/>
+  <text x="800" y="205" class="text-main">Backend (PHP API)</text>
+
+  <line x1="800" y1="130" x2="1200" y2="180" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-section" x="1200" y="200"/>
+  <text x="1200" y="205" class="text-main">Documentation</text>
+
+  <!-- Frontend Pages -->
+  <line x1="400" y1="225" x2="400" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="400" y="300"/>
+  <text x="400" y="305" class="text-main">index.html / App.jsx</text>
+
+  <!-- Public Pages -->
+  <line x1="400" y1="320" x2="150" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="150" y="390"/>
+  <text x="150" y="395" class="text-main">Home.jsx</text>
+
+  <line x1="400" y1="320" x2="250" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="250" y="390"/>
+  <text x="250" y="395" class="text-main">Articles.jsx</text>
+  <line x1="250" y1="410" x2="250" y2="440" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-subpage" x="250" y="460"/>
+  <text x="250" y="465" class="text-sub">ArticleDetailPage.jsx</text>
+
+  <line x1="400" y1="320" x2="350" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="350" y="390"/>
+  <text x="350" y="395" class="text-main">Gyms.jsx</text>
+  <line x1="350" y1="410" x2="350" y2="440" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-subpage" x="350" y="460"/>
+  <text x="350" y="465" class="text-sub">GymDetailPage.jsx</text>
+
+  <line x1="400" y1="320" x2="450" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="450" y="390"/>
+  <text x="450" y="395" class="text-main">Plans.jsx</text>
+
+  <line x1="400" y1="320" x2="550" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="550" y="390"/>
+  <text x="550" y="395" class="text-main">Login.jsx</text>
+
+  <line x1="400" y1="320" x2="650" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="650" y="390"/>
+  <text x="650" y="395" class="text-main">Register.jsx</text>
+
+  <!-- Authenticated/Special Pages -->
+  <line x1="150" y1="410" x2="150" y2="500" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="150" y="520"/>
+  <text x="150" y="525" class="text-main">Profile.jsx</text>
+
+  <line x1="150" y1="410" x2="250" y2="500" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="250" y="520"/>
+  <text x="250" y="525" class="text-main">SubscriptionPage.jsx</text>
+  
+  <line x1="400" y1="320" x2="400" y2="500" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-page" x="400" y="520"/>
+  <text x="400" y="525" class="text-main">GymStaffDemo.jsx</text>
+
+  <use xlink:href="#node-page" x="550" y="520"/>
+  <text x="550" y="525" class="text-main">NotFound.jsx</text>
+  <line x1="650" y1="410" x2="550" y2="500" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- Backend API Endpoints -->
+  <line x1="800" y1="225" x2="700" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-api" x="700" y="300"/>
+  <text x="700" y="305" class="text-api">/users.php</text>
+
+  <line x1="800" y1="225" x2="766" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-api" x="766" y="300"/>
+  <text x="766" y="305" class="text-api">/gyms.php</text>
+
+  <line x1="800" y1="225" x2="832" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-api" x="832" y="300"/>
+  <text x="832" y="305" class="text-api">/subscription_plans.php</text>
+
+  <line x1="800" y1="225" x2="900" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-api" x="900" y="300"/>
+  <text x="900" y="305" class="text-api">/user_subscriptions.php</text>
+
+  <!-- Documentation -->
+  <text x="1200" y="250" class="text-sub" font-weight="bold">Markdown Files (Root)</text>
+  <line x1="1200" y1="225" x2="1050" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-doc" x="1050" y="300"/>
+  <text x="1050" y="305" class="text-doc">README.md</text>
+  
+  <line x1="1200" y1="225" x2="1150" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-doc" x="1150" y="300"/>
+  <text x="1150" y="305" class="text-doc">DATABASE_SCHEMA.md</text>
+
+  <line x1="1200" y1="225" x2="1250" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-doc" x="1250" y="300"/>
+  <text x="1250" y="305" class="text-doc">GYMS_SETUP.md</text>
+
+  <line x1="1200" y1="225" x2="1350" y2="275" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-doc" x="1350" y="300"/>
+  <text x="1350" y="305" class="text-doc">QR_CODE_SYSTEM.md</text>
+
+  <text x="1200" y="350" class="text-sub" font-weight="bold">Diagrams (docs/diagrams)</text>
+  <line x1="1200" y1="360" x2="1150" y2="400" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-doc" x="1150" y="420"/>
+  <text x="1150" y="425" class="text-doc">use_case_diagram.svg</text>
+
+  <line x1="1200" y1="360" x2="1250" y2="400" stroke="#555" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <use xlink:href="#node-doc" x="1250" y="420"/>
+  <text x="1250" y="425" class="text-doc">use_case_diagram_v2.svg</text>
+
+</svg>

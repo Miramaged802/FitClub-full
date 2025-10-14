@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="900" height="700" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Subscription Process Sequence Diagram</title>
+    <style>
+        .actor-box { fill: #f8f9fa; stroke: #343a40; stroke-width: 2; }
+        .actor-text { font-family: Arial, sans-serif; font-size: 14px; fill: #212529; text-anchor: middle; }
+        .lifeline { stroke: #adb5bd; stroke-width: 2; stroke-dasharray: 5,5; }
+        .activation { fill: #e9ecef; stroke: #495057; stroke-width: 2; }
+        .message { stroke: #495057; stroke-width: 1.5; marker-end: url(#arrow); }
+        .return-message { stroke: #495057; stroke-width: 1.5; stroke-dasharray: 5,5; marker-end: url(#arrow); }
+        .message-text { font-family: Arial, sans-serif; font-size: 12px; fill: #212529; }
+        .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; fill: #212529; text-anchor: middle; }
+        .note { fill: #fff3cd; stroke: #856404; stroke-width: 1; }
+        .note-text { font-family: Arial, sans-serif; font-size: 12px; fill: #856404; }
+    </style>
+    
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#495057" />
+        </marker>
+    </defs>
+    
+    <text x="450" y="30" class="title">Subscription Process Sequence</text>
+    
+    <!-- Actors -->
+    <rect x="50" y="50" width="100" height="50" class="actor-box" />
+    <text x="100" y="80" class="actor-text">User</text>
+    <line x1="100" y1="100" x2="100" y2="650" class="lifeline" />
+    
+    <rect x="200" y="50" width="100" height="50" class="actor-box" />
+    <text x="250" y="80" class="actor-text">Plans Page</text>
+    <line x1="250" y1="100" x2="250" y2="650" class="lifeline" />
+    
+    <rect x="350" y="50" width="100" height="50" class="actor-box" />
+    <text x="400" y="80" class="actor-text">Subscription Page</text>
+    <line x1="400" y1="100" x2="400" y2="650" class="lifeline" />
+    
+    <rect x="500" y="50" width="100" height="50" class="actor-box" />
+    <text x="550" y="80" class="actor-text">Supabase Client</text>
+    <line x1="550" y1="100" x2="550" y2="650" class="lifeline" />
+    
+    <rect x="650" y="50" width="100" height="50" class="actor-box" />
+    <text x="700" y="80" class="actor-text">Supabase DB</text>
+    <line x1="700" y1="100" x2="700" y2="650" class="lifeline" />
+    
+    <rect x="800" y="50" width="100" height="50" class="actor-box" />
+    <text x="850" y="80" class="actor-text">Payment System</text>
+    <line x1="850" y1="100" x2="850" y2="650" class="lifeline" />
+    
+    <!-- Activation Boxes -->
+    <rect x="95" y="150" width="10" height="450" class="activation" />
+    <rect x="245" y="150" width="10" height="100" class="activation" />
+    <rect x="395" y="250" width="10" height="300" class="activation" />
+    <rect x="545" y="150" width="10" height="100" class="activation" />
+    <rect x="545" y="350" width="10" height="200" class="activation" />
+    <rect x="695" y="150" width="10" height="100" class="activation" />
+    <rect x="695" y="400" width="10" height="100" class="activation" />
+    <rect x="845" y="300" width="10" height="100" class="activation" />
+    
+    <!-- Messages -->
+    <line x1="105" y1="150" x2="245" y2="150" class="message" />
+    <text x="175" y="140" class="message-text">View subscription plans</text>
+    
+    <line x1="245" y1="175" x2="545" y2="175" class="message" />
+    <text x="395" y="165" class="message-text">Get subscription plans</text>
+    
+    <line x1="545" y1="200" x2="695" y2="200" class="message" />
+    <text x="620" y="190" class="message-text">Query subscription_plans table</text>
+    
+    <line x1="695" y1="225" x2="545" y2="225" class="return-message" />
+    <text x="620" y="215" class="message-text">Return plans data</text>
+    
+    <line x1="545" y1="250" x2="245" y2="250" class="return-message" />
+    <text x="395" y="240" class="message-text">Display plans</text>
+    
+    <line x1="105" y1="275" x2="245" y2="275" class="message" />
+    <text x="175" y="265" class="message-text">Select plan</text>
+    
+    <line x1="245" y1="300" x2="395" y2="300" class="message" />
+    <text x="320" y="290" class="message-text">Navigate to subscription page with plan ID</text>
+    
+    <line x1="105" y1="325" x2="395" y2="325" class="message" />
+    <text x="250" y="315" class="message-text">Enter payment details</text>
+    
+    <line x1="395" y1="350" x2="845" y2="350" class="message" />
+    <text x="620" y="340" class="message-text">Process payment</text>
+    
+    <line x1="845" y1="400" x2="395" y2="400" class="return-message" />
+    <text x="620" y="390" class="message-text">Payment successful</text>
+    
+    <line x1="395" y1="425" x2="545" y2="425" class="message" />
+    <text x="470" y="415" class="message-text">Create subscription</text>
+    
+    <line x1="545" y1="450" x2="695" y2="450" class="message" />
+    <text x="620" y="440" class="message-text">Insert into user_subscriptions table</text>
+    
+    <line x1="695" y1="500" x2="545" y2="500" class="return-message" />
+    <text x="620" y="490" class="message-text">Return subscription data</text>
+    
+    <line x1="545" y1="525" x2="395" y2="525" class="return-message" />
+    <text x="470" y="515" class="message-text">Subscription created</text>
+    
+    <line x1="395" y1="550" x2="105" y2="550" class="return-message" />
+    <text x="250" y="540" class="message-text">Display QR code and subscription details</text>
+    
+    <!-- Note -->
+    <rect x="450" y="560" width="200" height="40" class="note" />
+    <text x="460" y="585" class="note-text">QR code contains subscription ID</text>
+    
+    <!-- Final Actor Boxes -->
+    <rect x="50" y="650" width="100" height="50" class="actor-box" />
+    <text x="100" y="680" class="actor-text">User</text>
+    
+    <rect x="200" y="650" width="100" height="50" class="actor-box" />
+    <text x="250" y="680" class="actor-text">Plans Page</text>
+    
+    <rect x="350" y="650" width="100" height="50" class="actor-box" />
+    <text x="400" y="680" class="actor-text">Subscription Page</text>
+    
+    <rect x="500" y="650" width="100" height="50" class="actor-box" />
+    <text x="550" y="680" class="actor-text">Supabase Client</text>
+    
+    <rect x="650" y="650" width="100" height="50" class="actor-box" />
+    <text x="700" y="680" class="actor-text">Supabase DB</text>
+    
+    <rect x="800" y="650" width="100" height="50" class="actor-box" />
+    <text x="850" y="680" class="actor-text">Payment System</text>
+</svg>
