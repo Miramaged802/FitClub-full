@@ -28,7 +28,6 @@ const AdminUsers = lazy(() => import("./pages/admin/AdminUsers.jsx"));
 const AdminGyms = lazy(() => import("./pages/admin/AdminGyms.jsx"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments.jsx"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics.jsx"));
-const AdminSettings = lazy(() => import("./pages/admin/AdminSettings.jsx"));
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.jsx"));
 const AdminAuthGuard = lazy(
   () => import("./components/admin/AdminAuthGuard.jsx")
@@ -178,14 +177,6 @@ function App() {
                   element={
                     <AdminAuthGuard>
                       <AdminAnalytics />
-                    </AdminAuthGuard>
-                  }
-                />
-                <Route
-                  path="/admin/settings"
-                  element={
-                    <AdminAuthGuard>
-                      <AdminSettings />
                     </AdminAuthGuard>
                   }
                 />
