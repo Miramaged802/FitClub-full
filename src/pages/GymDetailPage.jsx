@@ -12,8 +12,11 @@ import {
   FiX,
 } from "react-icons/fi";
 import { motion } from "framer-motion";
-import { getGymById } from "../data/gymsData.js";
-import { auth, subscriptionPlans } from "../lib/supabase";
+import {
+  auth,
+  subscriptionPlans,
+  gyms as gymsAPI,
+} from "../lib/supabaseClient";
 
 const GymDetailPage = () => {
   const { id } = useParams();
@@ -29,11 +32,28 @@ const GymDetailPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const foundGym = getGymById(id);
-    if (foundGym) {
-      setGym(foundGym);
-    } else {
-      navigate("/gyms");
+    const fetchGym = async () => {
+      try {
+        const { data, error: fetchError } = await gymsAPI.getById(id);
+
+        if (fetchError) {
+          throw new Error(fetchError.message || "Failed to load gym");
+        }
+
+        if (data) {
+          setGym(data);
+        } else {
+          navigate("/gyms");
+        }
+      } catch (err) {
+        console.error("Error loading gym:", err);
+        setError(err.message || "Failed to load gym");
+        navigate("/gyms");
+      }
+    };
+
+    if (id) {
+      fetchGym();
     }
 
     // Get current user
@@ -117,8 +137,11 @@ const GymDetailPage = () => {
   }
 
   // Handle hours display - could be string or object
-  const displayHours =
-    typeof gym.hours === "string" ? { everyday: gym.hours } : gym.hours;
+  const displayHours = gym.hours
+    ? typeof gym.hours === "string"
+      ? { everyday: gym.hours }
+      : gym.hours
+    : { everyday: "Hours not available" };
 
   return (
     <div className="min-h-screen py-16">
@@ -144,32 +167,41 @@ const GymDetailPage = () => {
             transition={{ duration: 0.5 }}
           >
             <img
-              src={gym.images[selectedImage]}
+              src={
+                gym.image_url ||
+                (gym.images && gym.images[selectedImage]) ||
+                "/placeholder-gym.jpg"
+              }
               alt={`${gym.name} view ${selectedImage + 1}`}
               className="w-full h-full object-cover"
             />
           </motion.div>
           <div className="grid grid-cols-2 gap-4">
-            {gym.images.map((image, index) => (
-              <motion.button
-                key={index}
-                className={`relative h-44 rounded-lg overflow-hidden transition-all duration-300 ${
-                  selectedImage === index
-                    ? "ring-2 ring-primary-500 shadow-lg"
-                    : "hover:ring-2 hover:ring-primary-300"
-                }`}
-                onClick={() => setSelectedImage(index)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <img
-                  src={image}
-                  alt={`${gym.name} thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </motion.button>
-            ))}
+            {(gym.images && gym.images.length > 0
+              ? gym.images
+              : [gym.image_url]
+            )
+              .filter(Boolean)
+              .map((image, index) => (
+                <motion.button
+                  key={index}
+                  className={`relative h-44 rounded-lg overflow-hidden transition-all duration-300 ${
+                    selectedImage === index
+                      ? "ring-2 ring-primary-500 shadow-lg"
+                      : "hover:ring-2 hover:ring-primary-300"
+                  }`}
+                  onClick={() => setSelectedImage(index)}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <img
+                    src={image}
+                    alt={`${gym.name} thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.button>
+              ))}
           </div>
         </div>
 
@@ -189,7 +221,7 @@ const GymDetailPage = () => {
                     <FiStar className="text-warning-500 mr-1" />
                     <span className="font-medium">{gym.rating}</span>
                     <span className="text-light-textSecondary dark:text-dark-textSecondary ml-1">
-                      ({gym.reviewCount} reviews)
+                      ({gym.total_reviews || gym.reviewCount || 0} reviews)
                     </span>
                   </div>
                   <div className="flex items-center text-light-textSecondary dark:text-dark-textSecondary">
@@ -206,13 +238,14 @@ const GymDetailPage = () => {
                   <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-6 rounded-lg mb-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                       <div className="text-center md:text-left">
-                        <h3 className="text-xl font-bold mb-2">Start Your Fitness Journey</h3>
+                        <h3 className="text-xl font-bold mb-2">
+                          Start Your Fitness Journey
+                        </h3>
                         <p className="text-light-textSecondary dark:text-dark-textSecondary">
                           Get access to all amenities and classes
                         </p>
                       </div>
                       <div className="flex items-center gap-4">
-
                         <button
                           className="btn btn-primary btn-lg px-6 py-2.5 shadow-lg hover:shadow-xl transition-all duration-300"
                           onClick={handleSubscribeClick}
@@ -229,7 +262,7 @@ const GymDetailPage = () => {
               <div className="card mb-8">
                 <h2 className="text-xl font-bold mb-4">Amenities</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {gym.amenities.map((amenity, index) => (
+                  {(gym.amenities || []).map((amenity, index) => (
                     <div
                       key={index}
                       className="flex items-center p-3 bg-light-background dark:bg-dark-background rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
@@ -465,7 +498,7 @@ const GymDetailPage = () => {
                   Access to {gym.name} includes:
                 </h4>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  {gym.amenities.slice(0, 6).map((amenity, index) => (
+                  {(gym.amenities || []).slice(0, 6).map((amenity, index) => (
                     <div key={index} className="flex items-center">
                       <FiCheck className="text-success-500 mr-2" size={14} />
                       <span>{amenity}</span>

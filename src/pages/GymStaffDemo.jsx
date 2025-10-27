@@ -1,18 +1,11 @@
 import { useState } from "react";
-import { FiCamera, FiShield, FiUsers, FiClock } from "react-icons/fi";
+import { FiCamera } from "react-icons/fi";
 import { motion } from "framer-motion";
 import QRScanner from "../components/ui/QRScanner.jsx";
 
 const GymStaffDemo = () => {
   const [showScanner, setShowScanner] = useState(false);
 
-  // Mock stats for demo
-  const todayStats = {
-    membersCheckedIn: 47,
-    newMembers: 3,
-    expiredMemberships: 2,
-    totalScans: 52
-  };
 
   return (
     <div className="min-h-screen py-16 bg-gray-50 dark:bg-dark-background">
@@ -32,66 +25,6 @@ const GymStaffDemo = () => {
             </p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-sm">
-              <div className="flex items-center">
-                <FiUsers className="text-primary-600 dark:text-primary-400 text-xl mr-3" />
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {todayStats.membersCheckedIn}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Checked In Today
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-sm">
-              <div className="flex items-center">
-                <FiShield className="text-green-600 dark:text-green-400 text-xl mr-3" />
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {todayStats.totalScans}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Total Scans
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-sm">
-              <div className="flex items-center">
-                <div className="w-5 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center mr-3">
-                  +
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {todayStats.newMembers}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    New Members
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-sm">
-              <div className="flex items-center">
-                <FiClock className="text-red-600 dark:text-red-400 text-xl mr-3" />
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {todayStats.expiredMemberships}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Expired Today
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Main Scanner Section */}
           <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg p-8 mb-8">
@@ -131,7 +64,7 @@ const GymStaffDemo = () => {
                 </li>
                 <li className="flex items-start">
                   <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
-                  Click "Start QR Scanner" button above
+                  Click &quot;Start QR Scanner&quot; button above
                 </li>
                 <li className="flex items-start">
                   <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>

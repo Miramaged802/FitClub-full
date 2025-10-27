@@ -14,7 +14,8 @@ import {
   userSubscriptions,
   subscriptionPlans,
   users,
-} from "../lib/supabase";
+  supabase,
+} from "../lib/supabaseClient";
 import SubscriptionQRCode from "../components/ui/SubscriptionQRCode.jsx";
 
 const PaymentPage = () => {
@@ -214,13 +215,49 @@ const PaymentPage = () => {
       };
 
       // Store subscription in database
-      const { error: subscriptionError } = await userSubscriptions.create(
-        subscriptionPayload
-      );
+      const { data: createdSubscription, error: subscriptionError } =
+        await userSubscriptions.create(subscriptionPayload);
 
       if (subscriptionError) {
         throw new Error(subscriptionError.message);
       }
+
+      const subscriptionId =
+        createdSubscription?.[0]?.id || createdSubscription?.id;
+
+      // Calculate amount
+      const amount =
+        billingType === "monthly"
+          ? selectedPlan.price_monthly
+          : selectedPlan.price_yearly;
+
+      // Create payment log entry (mock payment)
+      const { error: paymentError } = await supabase
+        .from("payments_log")
+        .insert([
+          {
+            user_id: user.id,
+            subscription_id: subscriptionId,
+            plan: selectedPlan.name,
+            amount: amount,
+            status: "completed",
+            payment_method: "Credit Card",
+            transaction_reference: `TXN-${Date.now()}-${Math.random()
+              .toString(36)
+              .substr(2, 9)
+              .toUpperCase()}`,
+          },
+        ]);
+
+      if (paymentError) {
+        console.error("Payment log error:", paymentError);
+        // Don't fail the entire process if payment log fails
+      }
+
+      // Update user's subscription level in profile
+      await users.update(user.id, {
+        subscription_level: selectedPlan.name,
+      });
 
       // Prepare QR code data
       const qrData = {

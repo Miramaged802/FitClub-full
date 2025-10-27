@@ -10,8 +10,7 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PlanCard from "../components/ui/PlanCard.jsx";
-import { subscriptionPlans } from "../lib/supabase";
-import { mockSubscriptionPlansData } from "../data/mockSubscriptionPlansData";
+import { subscriptionPlans } from "../lib/supabaseClient";
 
 const Plans = () => {
   const [billingPeriod, setBillingPeriod] = useState("monthly");
@@ -35,19 +34,6 @@ const Plans = () => {
         const { data, error } = await subscriptionPlans.getAll();
 
         if (error) {
-          // Check if the error is about missing table
-          if (
-            error.message &&
-            error.message.includes(
-              'relation "public.subscription_plans" does not exist'
-            )
-          ) {
-            console.log(
-              "Subscription plans table does not exist in Supabase, using mock data instead"
-            );
-            setPlansData(mockSubscriptionPlansData);
-            return;
-          }
           throw new Error(
             error.message || "Failed to fetch subscription plans"
           );
@@ -74,16 +60,16 @@ const Plans = () => {
                         plan.name === "Basic"
                           ? "100+"
                           : plan.name === "Premium"
-                          ? "500+"
-                          : "1000+"
+                            ? "500+"
+                            : "1000+"
                       } gyms`,
                       "24/7 gym access",
                       `${
                         plan.name === "Basic"
                           ? "Basic"
                           : plan.name === "Premium"
-                          ? "Advanced"
-                          : "Elite"
+                            ? "Advanced"
+                            : "Elite"
                       } workout plans`,
                       `${
                         plan.name === "Basic" ? "Standard" : "All"

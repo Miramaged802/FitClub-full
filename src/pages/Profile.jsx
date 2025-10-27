@@ -3,14 +3,12 @@ import {
   FiUser,
   FiCreditCard,
   FiClipboard,
-  FiSettings,
   FiMapPin,
   FiEdit,
   FiCamera,
   FiCheckCircle,
   FiBarChart,
   FiSquare,
-  FiLogOut,
   FiSave,
   FiX,
   FiPlus,
@@ -20,8 +18,16 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import SubscriptionQRCode from "../components/ui/SubscriptionQRCode.jsx";
-import { auth, users, userSubscriptions, workouts } from "../lib/supabase";
+import {
+  auth,
+  users,
+  userSubscriptions,
+  workouts,
+} from "../lib/supabaseClient";
+import { favoriteGyms } from "../lib/supabaseClient";
 import { toast } from "react-hot-toast";
+import { gymAccessLogs } from "../lib/supabaseClient";
+import { gyms as gymsAPI } from "../lib/supabaseClient";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("account");
@@ -40,8 +46,18 @@ const Profile = () => {
     name: "",
     date: "",
     duration: "60",
-    gym: "",
+    gymId: "",
     notes: "",
+  });
+  const [gymsList, setGymsList] = useState([]);
+
+  // Derived progress metrics from DB
+  const [progress, setProgress] = useState({
+    workoutsThisMonth: 0,
+    totalHours: 0,
+    gymVisitsThisMonth: 0,
+    goalProgress: [],
+    recentAchievements: [],
   });
 
   const navigate = useNavigate();
@@ -55,13 +71,10 @@ const Profile = () => {
       try {
         // Get current authenticated user
         const { user, error: authError } = await auth.getUser();
-       
 
         if (authError || !user) {
-         
           throw new Error(authError?.message || "Not authenticated");
         }
-  
 
         // Get user profile data
         let profileData;
@@ -70,7 +83,7 @@ const Profile = () => {
 
         if (profileError && profileError.message.includes("No rows returned")) {
           // Create profile if it doesn't exist
-        
+
           const newProfile = {
             user_id: user.id,
             first_name: user.user_metadata?.first_name || "",
@@ -90,20 +103,17 @@ const Profile = () => {
           }
           profileData = createdProfile[0];
         } else if (profileError) {
-         
           throw new Error(
             profileError.message || "Failed to fetch profile data"
           );
         } else {
           profileData = existingProfile;
-         
         }
 
         // Get user subscriptions
-        const { data: subscriptionsData } =
-          await userSubscriptions.getByUserId(user.id);
-
-       
+        const { data: subscriptionsData } = await userSubscriptions.getByUserId(
+          user.id
+        );
 
         // Combine auth user data with profile data
         const fullUserData = {
@@ -121,26 +131,27 @@ const Profile = () => {
             month: "long",
           }),
           recentWorkouts: [],
-          favoriteGyms: [
-            {
-              id: 1,
-              name: "Gold's Gym New Cairo",
-              image:
-                "https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-              location: "New Cairo, Cairo",
-            },
-            {
-              id: 2,
-              name: "California Gym Zamalek",
-              image:
-                "https://images.pexels.com/photos/13106586/pexels-photo-13106586.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-              location: "Zamalek, Cairo",
-            },
-          ],
+          favoriteGyms: [],
         };
 
+        // Load favorite gyms from DB
+        try {
+          const { data: favRows } = await favoriteGyms.getDetailedByUserId(
+            user.id
+          );
+          const mappedFavs = (favRows || []).map((row) => ({
+            id: row.gyms?.id || row.gym_id,
+            name: row.gyms?.name || "",
+            image: row.gyms?.image_url,
+            location: row.gyms?.location || "",
+          }));
+          fullUserData.favoriteGyms = mappedFavs;
+        } catch {
+          // keep empty favorites on failure
+        }
+
         setUserData(fullUserData);
-       
+
         setEditForm({
           first_name: profileData?.first_name || "",
           last_name: profileData?.last_name || "",
@@ -149,8 +160,8 @@ const Profile = () => {
           fitness_goals: Array.isArray(profileData?.fitness_goals)
             ? profileData.fitness_goals
             : profileData?.fitness_goals
-            ? [profileData.fitness_goals]
-            : ["Build Muscle", "Improve Endurance"],
+              ? [profileData.fitness_goals]
+              : ["Build Muscle", "Improve Endurance"],
         });
 
         if (subscriptionsData && subscriptionsData.length > 0) {
@@ -200,9 +211,7 @@ const Profile = () => {
   // Fetch user workouts
   useEffect(() => {
     const fetchWorkouts = async () => {
-     
       if (!userData?.user_id) {
-      
         return;
       }
 
@@ -211,24 +220,82 @@ const Profile = () => {
           await workouts.getByUserId(userData.user_id);
 
         if (workoutsError) {
-       
           setError("Failed to load workouts");
           return;
         }
 
+        // Compute progress metrics from workouts
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
-        // Update userData with fetched workouts
+        const normalizeDate = (w) =>
+          new Date(w.workout_date || w.date || w.created_at || now);
+
+        const workoutsThisMonthList = (workoutsData || []).filter((w) => {
+          const d = normalizeDate(w);
+          return (
+            d.getMonth() === currentMonth && d.getFullYear() === currentYear
+          );
+        });
+
+        const workoutsThisMonth = workoutsThisMonthList.length;
+        const totalMinutes = (workoutsData || []).reduce(
+          (sum, w) => sum + (Number(w.duration) || 0),
+          0
+        );
+        const totalHours = +(totalMinutes / 60).toFixed(1);
+
+        // Goal progress: derive simple percentages based on workoutsThisMonth
+        const goals = Array.isArray(userData?.fitness_goals)
+          ? userData.fitness_goals
+          : userData?.fitness_goals
+            ? [userData.fitness_goals]
+            : [];
+        const basePct = Math.min(
+          100,
+          Math.round((workoutsThisMonth / 20) * 100)
+        );
+        const goalProgress = goals.map((g, idx) => ({
+          goal: g,
+          percent: Math.min(100, Math.max(5, basePct + idx * 5)),
+        }));
+
+        // Recent achievements from totals
+        const totalWorkouts = (workoutsData || []).length;
+        const achievements = [];
+        if (totalWorkouts >= 10)
+          achievements.push({
+            title: "10 Workouts Completed",
+            date:
+              workoutsThisMonthList[0]?.workout_date ||
+              workoutsThisMonthList[0]?.date ||
+              now,
+          });
+        if (totalHours >= 20)
+          achievements.push({ title: "20 Total Hours", date: now });
+
+        setProgress((prev) => ({
+          ...prev,
+          workoutsThisMonth,
+          totalHours,
+          goalProgress,
+          recentAchievements: achievements,
+        }));
+
+        // Update userData with fetched workouts for UI tables
         setUserData((prev) => ({
           ...prev,
           recentWorkouts:
             workoutsData && workoutsData.length > 0
               ? workoutsData.map((workout) => ({
                   id: workout.id,
-                  date: workout.date,
-                  name: workout.name,
+                  date:
+                    workout.workout_date || workout.created_at || workout.date,
+                  title: workout.title || workout.name,
+                  description: workout.description || workout.notes,
                   duration: workout.duration,
-                  gym: workout.gym,
-                  notes: workout.notes,
+                  gym: workout.gyms?.name || workout.gym,
                   status: workout.status,
                 }))
               : [],
@@ -240,7 +307,55 @@ const Profile = () => {
     };
 
     fetchWorkouts();
+  }, [userData?.user_id, userData?.fitness_goals]);
+
+  // Fetch gym access logs for visits metric
+  useEffect(() => {
+    const fetchAccessLogs = async () => {
+      if (!userData?.user_id) return;
+
+      try {
+        const { data: logs, error: logsError } =
+          await gymAccessLogs.getByUserId(userData.user_id);
+        if (logsError) {
+          return;
+        }
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        const visitsThisMonth = (logs || []).filter((l) => {
+          const d = new Date(l.scanned_at || l.created_at);
+          return (
+            d.getMonth() === currentMonth && d.getFullYear() === currentYear
+          );
+        }).length;
+
+        setProgress((prev) => ({
+          ...prev,
+          gymVisitsThisMonth: visitsThisMonth,
+        }));
+      } catch {
+        // ignore
+      }
+    };
+
+    fetchAccessLogs();
   }, [userData?.user_id]);
+
+  // Load gyms for scheduling dropdown
+  useEffect(() => {
+    const loadGyms = async () => {
+      try {
+        const { data, error } = await gymsAPI.getAll();
+        if (!error) {
+          setGymsList(data || []);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    loadGyms();
+  }, []);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -257,8 +372,8 @@ const Profile = () => {
         fitness_goals: Array.isArray(userData?.fitness_goals)
           ? userData.fitness_goals
           : userData?.fitness_goals
-          ? [userData.fitness_goals]
-          : ["Build Muscle", "Improve Endurance"],
+            ? [userData.fitness_goals]
+            : ["Build Muscle", "Improve Endurance"],
       });
     }
   };
@@ -304,7 +419,6 @@ const Profile = () => {
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-  
       setError(err.message || "Failed to update profile");
     } finally {
       setIsSaving(false);
@@ -363,7 +477,6 @@ const Profile = () => {
         throw new Error("Failed to read image file");
       };
     } catch (err) {
-     
       setError(err.message || "Failed to upload avatar");
     } finally {
       setIsUploadingAvatar(false);
@@ -398,7 +511,6 @@ const Profile = () => {
     { id: "subscription", label: "Subscription", icon: <FiCreditCard /> },
     { id: "progress", label: "Progress", icon: <FiBarChart /> },
     { id: "workouts", label: "Workouts", icon: <FiClipboard /> },
-    { id: "settings", label: "Settings", icon: <FiSettings /> },
   ];
 
   // Get active subscription for QR code
@@ -420,15 +532,6 @@ const Profile = () => {
         verificationCode: activeSubscription.verification_code,
       }
     : null;
-
-  const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-      navigate("/login");
-    } catch (err) {
-     console.error("Error signing out:", err);
-    }
-  };
 
   const handleUpgradePlan = () => {
     navigate("/plans");
@@ -541,7 +644,7 @@ const Profile = () => {
 
     try {
       // Validate the form data
-      if (!scheduleForm.name || !scheduleForm.date || !scheduleForm.gym) {
+      if (!scheduleForm.name || !scheduleForm.date || !scheduleForm.gymId) {
         throw new Error("Please fill in all required fields");
       }
 
@@ -554,12 +657,11 @@ const Profile = () => {
       // Create the workout data
       const workoutData = {
         user_id: userData.user_id,
-        name: scheduleForm.name,
-        date: new Date(scheduleForm.date).toISOString(),
+        title: scheduleForm.name,
+        workout_date: new Date(scheduleForm.date).toISOString(),
         duration: duration,
-        gym: scheduleForm.gym,
-        notes: scheduleForm.notes || "",
-        status: "scheduled",
+        gym_id: scheduleForm.gymId || null,
+        description: scheduleForm.notes || "",
       };
 
       // Create the workout
@@ -577,7 +679,7 @@ const Profile = () => {
         name: "",
         date: "",
         duration: "60",
-        gym: "",
+        gymId: "",
         notes: "",
       });
       toast.success("Workout scheduled successfully!");
@@ -666,39 +768,39 @@ const Profile = () => {
                       </div>
                       <div>
                         <h4 className="font-medium">
-                          {workout.name || "Unnamed Workout"}
+                          {workout.title || workout.name || "Unnamed Workout"}
                         </h4>
                         <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
-                          {workout.notes || "No notes"}
+                          {workout.description || workout.notes || "No notes"}
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="py-3 px-4">
-                    {workout.date
-                      ? new Date(workout.date).toLocaleDateString()
+                    {workout.workout_date || workout.date
+                      ? new Date(
+                          workout.workout_date || workout.date
+                        ).toLocaleDateString()
                       : "No date"}
                   </td>
                   <td className="py-3 px-4">
                     {workout.duration || "0"} minutes
                   </td>
                   <td className="py-3 px-4">
-                    {workout.gym || "No gym specified"}
+                    {workout.gyms?.name || workout.gym || "No gym specified"}
                   </td>
                   <td className="py-3 px-4">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         workout.status === "completed"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : workout.status === "cancelled"
-                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                          : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                       }`}
                     >
                       {workout.status
                         ? workout.status.charAt(0).toUpperCase() +
                           workout.status.slice(1)
-                        : "Pending"}
+                        : "completed"}
                     </span>
                   </td>
                 </tr>
@@ -770,15 +872,27 @@ const Profile = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Gym</label>
-                  <input
-                    type="text"
+                  <select
                     className="input w-full"
-                    value={scheduleForm.gym}
+                    value={scheduleForm.gymId}
                     onChange={(e) =>
-                      setScheduleForm({ ...scheduleForm, gym: e.target.value })
+                      setScheduleForm({
+                        ...scheduleForm,
+                        gymId: e.target.value,
+                      })
                     }
                     required
-                  />
+                  >
+                    <option value="" disabled>
+                      Select a gym
+                    </option>
+                    {gymsList.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.name}
+                        {g.city ? ` — ${g.city}` : ""}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -1267,22 +1381,22 @@ const Profile = () => {
                           </div>
 
                           {subscription.status === "active" && (
-                            <div className="flex flex-wrap gap-3 mb-4">
+                            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4">
                               <button
-                                className="btn btn-primary flex items-center"
+                                className="btn btn-primary flex items-center justify-center flex-1 min-w-0"
                                 onClick={() => setShowQRCode(true)}
                               >
                                 <FiSquare className="mr-2" size={16} />
                                 Show QR Code
                               </button>
                               <button
-                                className="btn btn-outline"
+                                className="btn btn-outline flex items-center justify-center flex-1 min-w-0"
                                 onClick={handleUpgradePlan}
                               >
                                 Upgrade Plan
                               </button>
                               <button
-                                className="btn btn-outline text-error-600 dark:text-error-400"
+                                className="btn btn-outline text-error-600 dark:text-error-400 border-error-200 dark:border-error-800 hover:bg-error-50 dark:hover:bg-error-900/20 flex items-center justify-center flex-1 min-w-0"
                                 onClick={handleCancelSubscription}
                               >
                                 Cancel Subscription
@@ -1382,18 +1496,20 @@ const Profile = () => {
                         You don&apos;t have any active subscriptions. Choose a
                         plan to get started!
                       </p>
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => navigate("/plans")}
-                      >
-                        View Plans
-                      </button>
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => handleSubscribe("standard-plan")}
-                      >
-                        Subscribe Now
-                      </button>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button
+                          className="btn btn-primary flex items-center justify-center"
+                          onClick={() => navigate("/plans")}
+                        >
+                          View Plans
+                        </button>
+                        <button
+                          className="btn btn-outline flex items-center justify-center"
+                          onClick={() => handleSubscribe("standard-plan")}
+                        >
+                          Subscribe Now
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1411,10 +1527,10 @@ const Profile = () => {
                         Workouts This Month
                       </p>
                       <h3 className="text-3xl font-bold text-primary-700 dark:text-primary-500">
-                        12
+                        {progress.workoutsThisMonth}
                       </h3>
                       <p className="text-sm text-primary-600/70 dark:text-primary-400/70 mt-1">
-                        +3 from last month
+                        &nbsp;
                       </p>
                     </div>
 
@@ -1423,10 +1539,10 @@ const Profile = () => {
                         Total Hours
                       </p>
                       <h3 className="text-3xl font-bold text-secondary-700 dark:text-secondary-500">
-                        24.5
+                        {progress.totalHours}
                       </h3>
                       <p className="text-sm text-secondary-600/70 dark:text-secondary-400/70 mt-1">
-                        +5.5 from last month
+                        &nbsp;
                       </p>
                     </div>
 
@@ -1435,10 +1551,10 @@ const Profile = () => {
                         Gym Visits
                       </p>
                       <h3 className="text-3xl font-bold text-accent-700 dark:text-accent-500">
-                        8
+                        {progress.gymVisitsThisMonth}
                       </h3>
                       <p className="text-sm text-accent-600/70 dark:text-accent-400/70 mt-1">
-                        +2 from last month
+                        &nbsp;
                       </p>
                     </div>
                   </div>
@@ -1449,16 +1565,16 @@ const Profile = () => {
                     </h3>
 
                     <div className="space-y-6">
-                      {userData.fitness_goals?.map((goal, index) => (
+                      {progress.goalProgress.map((g, index) => (
                         <div key={index}>
                           <div className="flex justify-between mb-2">
-                            <span className="font-medium">{goal}</span>
-                            <span>{60 + index * 15}%</span>
+                            <span className="font-medium">{g.goal}</span>
+                            <span>{g.percent}%</span>
                           </div>
                           <div className="w-full bg-light-background dark:bg-dark-background rounded-full h-2.5">
                             <div
                               className="bg-primary-600 h-2.5 rounded-full"
-                              style={{ width: `${60 + index * 15}%` }}
+                              style={{ width: `${g.percent}%` }}
                             ></div>
                           </div>
                         </div>
@@ -1472,160 +1588,30 @@ const Profile = () => {
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex bg-light-background dark:bg-dark-background p-4 rounded-lg">
-                        <div className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 p-3 rounded-full mr-4">
-                          <FiCheckCircle size={24} />
+                      {progress.recentAchievements.length === 0 ? (
+                        <div className="text-light-textSecondary dark:text-dark-textSecondary">
+                          No achievements yet
                         </div>
-                        <div>
-                          <h4 className="font-medium">10 Workouts Completed</h4>
-                          <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
-                            January 18, 2024
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex bg-light-background dark:bg-dark-background p-4 rounded-lg">
-                        <div className="bg-secondary-100 dark:bg-secondary-900/30 text-secondary-600 dark:text-secondary-400 p-3 rounded-full mr-4">
-                          <FiCheckCircle size={24} />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">
-                            First Personal Training Session
-                          </h4>
-                          <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
-                            January 12, 2024
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "settings" && (
-                <div>
-                  <h2 className="text-2xl font-bold mb-6">Account Settings</h2>
-
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">
-                        Email Notifications
-                      </h3>
-                      <div className="space-y-3">
-                        {[
-                          {
-                            id: "workout-reminders",
-                            label: "Workout reminders",
-                          },
-                          {
-                            id: "subscription-updates",
-                            label: "Subscription updates",
-                          },
-                          {
-                            id: "new-features",
-                            label: "New features and improvements",
-                          },
-                          {
-                            id: "gym-updates",
-                            label: "Updates from your favorite gyms",
-                          },
-                          {
-                            id: "promotional",
-                            label: "Promotional emails and special offers",
-                          },
-                        ].map((option) => (
+                      ) : (
+                        progress.recentAchievements.map((a, i) => (
                           <div
-                            key={option.id}
-                            className="flex items-center justify-between p-3 bg-light-background dark:bg-dark-background rounded-lg"
+                            key={i}
+                            className="flex bg-light-background dark:bg-dark-background p-4 rounded-lg"
                           >
-                            <label
-                              htmlFor={option.id}
-                              className="cursor-pointer"
-                            >
-                              {option.label}
-                            </label>
-                            <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full cursor-pointer">
-                              <input
-                                type="checkbox"
-                                id={option.id}
-                                className="absolute w-6 h-6 transition duration-200 ease-in-out transform bg-white border-2 rounded-full appearance-none cursor-pointer peer border-light-border dark:border-dark-border checked:translate-x-6 checked:border-primary-600 dark:checked:border-primary-500"
-                                defaultChecked={[
-                                  "workout-reminders",
-                                  "subscription-updates",
-                                  "new-features",
-                                ].includes(option.id)}
-                              />
-                              <span className="absolute inset-0 transition duration-200 ease-in-out rounded-full bg-light-border dark:bg-dark-border peer-checked:bg-primary-600 dark:peer-checked:bg-primary-500"></span>
+                            <div className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 p-3 rounded-full mr-4">
+                              <FiCheckCircle size={24} />
+                            </div>
+                            <div>
+                              <h4 className="font-medium">{a.title}</h4>
+                              <p className="text-sm text-light-textSecondary dark:text-dark-textSecondary">
+                                {a.date
+                                  ? new Date(a.date).toLocaleDateString()
+                                  : ""}
+                              </p>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">
-                        Privacy Settings
-                      </h3>
-                      <div className="space-y-3">
-                        {[
-                          {
-                            id: "show-profile",
-                            label: "Show my profile to other members",
-                          },
-                          {
-                            id: "share-workouts",
-                            label: "Share my workouts with friends",
-                          },
-                          {
-                            id: "location-tracking",
-                            label:
-                              "Enable location tracking for gym suggestions",
-                          },
-                        ].map((option) => (
-                          <div
-                            key={option.id}
-                            className="flex items-center justify-between p-3 bg-light-background dark:bg-dark-background rounded-lg"
-                          >
-                            <label
-                              htmlFor={option.id}
-                              className="cursor-pointer"
-                            >
-                              {option.label}
-                            </label>
-                            <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full cursor-pointer">
-                              <input
-                                type="checkbox"
-                                id={option.id}
-                                className="absolute w-6 h-6 transition duration-200 ease-in-out transform bg-white border-2 rounded-full appearance-none cursor-pointer peer border-light-border dark:border-dark-border checked:translate-x-6 checked:border-primary-600 dark:checked:border-primary-500"
-                                defaultChecked={["location-tracking"].includes(
-                                  option.id
-                                )}
-                              />
-                              <span className="absolute inset-0 transition duration-200 ease-in-out rounded-full bg-light-border dark:bg-dark-border peer-checked:bg-primary-600 dark:peer-checked:bg-primary-500"></span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">
-                        Account Actions
-                      </h3>
-                      <div className="space-y-3">
-                        <button className="w-full btn btn-outline justify-start">
-                          Change Password
-                        </button>
-                        <button
-                          onClick={handleSignOut}
-                          className="w-full btn btn-outline justify-start"
-                        >
-                          <FiLogOut className="mr-2" /> Sign Out
-                        </button>
-                        <button className="w-full btn btn-outline justify-start text-error-600 dark:text-error-400 border-error-200 dark:border-error-800 hover:bg-error-50 dark:hover:bg-error-900/20">
-                          Delete Account
-                        </button>
-                      </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>

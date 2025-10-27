@@ -1,17 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  FiUser,
-  FiMail,
-  FiLock,
-  FiEye,
-  FiEyeOff,
-  FiCheckCircle,
-} from "react-icons/fi";
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { motion } from "framer-motion";
-import { auth, users } from "../lib/supabase";
+import { auth, users } from "../lib/supabaseClient";
 
-const Register = ({ onRegister }) => {
+const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -106,12 +99,14 @@ const Register = ({ onRegister }) => {
       } else if (data) {
         if (data.message) {
           // Email confirmation required
-          setErrors({ 
-            form: 'Please check your email for the confirmation link before logging in.' 
+          setErrors({
+            form: "Please check your email for the confirmation link before logging in.",
           });
           // Optionally redirect to a confirmation page
-          navigate('/login', { 
-            state: { message: 'Please check your email for the confirmation link.' }
+          navigate("/login", {
+            state: {
+              message: "Please check your email for the confirmation link.",
+            },
           });
         } else if (data.user) {
           // Create additional user profile data if needed
@@ -122,8 +117,7 @@ const Register = ({ onRegister }) => {
             last_name: lastName,
             created_at: new Date().toISOString(),
           });
-          
-          onRegister();
+
           navigate("/profile");
         }
       }

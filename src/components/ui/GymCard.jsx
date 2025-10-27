@@ -4,21 +4,24 @@ import {
   FiClock,
   FiPhone,
   FiDollarSign,
+  FiHeart,
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-const GymCard = ({ gym }) => {
+const GymCard = ({ gym, isFavorite = false, onToggleFavorite }) => {
   const {
     id,
     name,
     images,
     image,
+    image_url, // New property from Supabase
     location,
     rating,
-    reviewCount = 0,
-    hours,
+    total_reviews = 0, // Changed from reviewCount
+    opening_hours, // Changed from hours
+    hours, // Keep for backward compatibility
     amenities = [],
     distance,
     monthlyPrice,
@@ -27,17 +30,20 @@ const GymCard = ({ gym }) => {
     address,
   } = gym;
 
-  // Use the first image from images array or fallback to image property
-  const displayImage = images ? images[0] : image;
+  // Use the first image from images array, image_url from Supabase, or fallback to image property
+  const displayImage = images ? images[0] : image_url || image;
 
   // Format hours for display - handle both string and object formats
-  const formatHours = (hours) => {
-    if (typeof hours === "string") {
-      return hours;
+  const formatHours = (hoursData) => {
+    // Use opening_hours from Supabase if available, otherwise use hours
+    const hoursToFormat = opening_hours || hoursData;
+
+    if (typeof hoursToFormat === "string") {
+      return hoursToFormat;
     }
-    if (typeof hours === "object" && hours) {
+    if (typeof hoursToFormat === "object" && hoursToFormat) {
       // If it's an object, show a generic message or the first day's hours
-      const firstDay = Object.values(hours)[0];
+      const firstDay = Object.values(hoursToFormat)[0];
       return firstDay || "See details for hours";
     }
     return "Hours not available";
@@ -56,6 +62,26 @@ const GymCard = ({ gym }) => {
             alt={name}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
           />
+          {onToggleFavorite && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onToggleFavorite(gym);
+              }}
+              className={`absolute bottom-3 right-3 px-2 py-1 rounded-full flex items-center gap-1 text-sm transition-colors ${
+                isFavorite
+                  ? "bg-red-600 text-white"
+                  : "bg-black/70 text-white hover:bg-black/80"
+              }`}
+              aria-label={
+                isFavorite ? "Remove from favorites" : "Add to favorites"
+              }
+            >
+              <FiHeart size={14} className={isFavorite ? "fill-white" : ""} />
+              <span>{isFavorite ? "Favorited" : "Favorite"}</span>
+            </button>
+          )}
           {distance && (
             <div className="absolute top-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center">
               <FiMapPin size={12} className="mr-1" />
@@ -97,15 +123,15 @@ const GymCard = ({ gym }) => {
               <FiStar className="text-warning-500 mr-1" size={16} />
               <span className="font-medium">{rating}</span>
             </div>
-            {reviewCount > 0 && (
+            {total_reviews > 0 && (
               <span className="text-sm text-light-textSecondary dark:text-dark-textSecondary ml-2">
-                ({reviewCount} reviews)
+                ({total_reviews} reviews)
               </span>
             )}
           </div>
         )}
 
-        {hours && (
+        {(hours || opening_hours) && (
           <div className="flex items-center text-sm text-light-textSecondary dark:text-dark-textSecondary mb-3">
             <FiClock size={14} className="mr-1" />
             <span>{formatHours(hours)}</span>
@@ -154,13 +180,16 @@ const GymCard = ({ gym }) => {
 
 GymCard.propTypes = {
   gym: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired, // Changed from number to string for UUID
     name: PropTypes.string.isRequired,
     images: PropTypes.arrayOf(PropTypes.string),
     image: PropTypes.string,
+    image_url: PropTypes.string, // New property from Supabase
     location: PropTypes.string.isRequired,
     rating: PropTypes.number,
-    reviewCount: PropTypes.number,
+    total_reviews: PropTypes.number, // Changed from reviewCount
+    reviewCount: PropTypes.number, // Keep for backward compatibility
+    opening_hours: PropTypes.oneOfType([PropTypes.string, PropTypes.object]), // New property from Supabase
     hours: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     amenities: PropTypes.arrayOf(PropTypes.string),
     distance: PropTypes.string,
@@ -169,6 +198,8 @@ GymCard.propTypes = {
     phone: PropTypes.string,
     address: PropTypes.string,
   }).isRequired,
+  isFavorite: PropTypes.bool,
+  onToggleFavorite: PropTypes.func,
 };
 
 export default GymCard;

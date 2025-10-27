@@ -1,0 +1,21 @@
+{
+  "name": "FitClub - Gym Subscription Platform",
+  "short_name": "FitClub",
+  "description": "Your ultimate gym membership and fitness tracking platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["health", "fitness", "lifestyle"],
+  "prefer_related_applications": false
+}
+

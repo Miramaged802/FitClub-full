@@ -10,7 +10,7 @@ import {
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import GymCard from "../components/ui/GymCard.jsx";
-import { gymsData } from "../data/gymsData.js";
+import { gyms as gymsAPI, favoriteGyms, auth } from "../lib/supabaseClient";
 
 const Gyms = () => {
   const [filters, setFilters] = useState({
@@ -25,6 +25,7 @@ const Gyms = () => {
   const [gymsDataState, setGymsDataState] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [favoriteGymIds, setFavoriteGymIds] = useState([]);
 
   const amenitiesList = [
     "Pool",
@@ -51,17 +52,79 @@ const Gyms = () => {
     "Sharm El Sheikh",
   ];
 
-  // Load gyms data directly from gymsData.js
+  // Load gyms data from Supabase
   useEffect(() => {
-    try {
-      setGymsDataState(gymsData);
-      setIsLoading(false);
-    } catch (err) {
-      console.error("Error loading gyms:", err);
-      setError(err.message || "Failed to load gyms");
-      setIsLoading(false);
-    }
+    const fetchGyms = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const { data, error: fetchError } = await gymsAPI.getAll();
+
+        if (fetchError) {
+          throw new Error(fetchError.message || "Failed to load gyms");
+        }
+
+        if (data && data.length > 0) {
+          setGymsDataState(data);
+        } else {
+          setGymsDataState([]);
+        }
+      } catch (err) {
+        console.error("Error loading gyms:", err);
+        setError(err.message || "Failed to load gyms");
+        setGymsDataState([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGyms();
   }, []);
+
+  // Load user's favorite gyms
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const { user } = await auth.getUser();
+        if (!user) {
+          setFavoriteGymIds([]);
+          return;
+        }
+        const { data: ids } = await favoriteGyms.getIdsByUserId(user.id);
+        setFavoriteGymIds((ids || []).map((row) => row.gym_id));
+      } catch {
+        setFavoriteGymIds([]);
+      }
+    };
+
+    loadFavorites();
+  }, []);
+
+  const toggleFavorite = async (gym) => {
+    try {
+      const { user } = await auth.getUser();
+      if (!user) {
+        alert("Please log in to favorite gyms");
+        return;
+      }
+
+      const isFav = favoriteGymIds.includes(gym.id);
+      if (isFav) {
+        const { error: remErr } = await favoriteGyms.remove(user.id, gym.id);
+        if (!remErr) {
+          setFavoriteGymIds(favoriteGymIds.filter((id) => id !== gym.id));
+        }
+      } else {
+        const { error: addErr } = await favoriteGyms.add(user.id, gym.id);
+        if (!addErr) {
+          setFavoriteGymIds([gym.id, ...favoriteGymIds]);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to toggle favorite", e);
+    }
+  };
 
   // Filter gyms based on search and filters
   const filteredGyms = gymsDataState.filter((gym) => {
@@ -388,7 +451,11 @@ const Gyms = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                     >
-                      <GymCard gym={gym} />
+                      <GymCard
+                        gym={gym}
+                        isFavorite={favoriteGymIds.includes(gym.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
                     </motion.div>
                   ))}
                 </div>
