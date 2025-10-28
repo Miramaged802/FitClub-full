@@ -48,9 +48,7 @@ export const useUserData = () => {
 
         profileData = createdProfile[0];
       } else if (profileError) {
-        throw new Error(
-          profileError.message || "Failed to fetch profile data"
-        );
+        throw new Error(profileError.message || "Failed to fetch profile data");
       } else {
         profileData = existingProfile;
       }
@@ -113,4 +111,3 @@ export const useUserData = () => {
 };
 
 export default useUserData;
-
